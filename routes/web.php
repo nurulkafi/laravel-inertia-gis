@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GraphController;
 use App\Http\Controllers\NodeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -34,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/node', [NodeController::class, 'index'])->name('node.index');
     Route::post('/node', [NodeController::class, 'create'])->name('node.create');
+    Route::get('/graph', [GraphController::class, 'index'])->name('graph.index');
+    Route::post('/graph', [GraphController::class, 'create'])->name('graph.create');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
