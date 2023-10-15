@@ -1,20 +1,33 @@
 import Modal from "@/Components/FloatUI/Modal";
 import MapboxMap from "@/Components/MapBox";
 import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
+import TextInput from "@/Components/FloatUI/TextInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Pagination from "@/Components/Pagination";
+import TableData from "./Partials/tableData";
 
 export default function Index(props) {
     const auth = props.auth;
     const datas = props.datas;
     const [openModal, setOpenModal] = useState(false);
+    const [dataLat, setDataLat] = useState("");
+    const [dataLng, setDataLng] = useState("");
+    const [dataCityName, setDataCityName] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         lat: "",
         lng: "",
     });
+
+    useEffect(() => {
+        setData((data) => ({ ...data, name: dataCityName }));
+        setData((data) => ({ ...data, lat: dataLat }));
+        setData((data) => ({ ...data, lng: dataLng }));
+    }, [dataLat, dataLng]);
     const submit = (e) => {
         e.preventDefault();
 
@@ -23,9 +36,8 @@ export default function Index(props) {
         data.name = "";
         data.lat = "";
         data.lng = "";
-        // console.log('submit')
     };
-
+    console.log(isLoading)
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -64,84 +76,8 @@ export default function Index(props) {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
-                                    <table className="w-full table-auto text-sm text-left">
-                                        <thead className="bg-gray-50 text-gray-600 font-medium border-b">
-                                            <tr>
-                                                <th className="py-3 px-6">
-                                                    No
-                                                </th>
-                                                <th className="py-3 px-6">
-                                                    Name
-                                                </th>
-                                                <th className="py-3 px-6">
-                                                    Latitude
-                                                </th>
-                                                <th className="py-3 px-6">
-                                                    Longitude
-                                                </th>
-                                                <th className="py-3 px-6">
-                                                    Aksi
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="text-gray-600 divide-y">
-                                            {datas.map((item, idx) => (
-                                                <tr key={idx}>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {idx + 1}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {item.name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {item.lat}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {item.lng}
-                                                    </td>
-                                                    <td className=" px-6 whitespace-nowrap">
-                                                        <a
-                                                            href="javascript:void()"
-                                                            className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
-                                                        >
-                                                            Edit
-                                                        </a>
-                                                        <button
-                                                            href="javascript:void()"
-                                                            className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <TableData datas={datas} />
                             </div>
-                            {/* <div className="flex items-start justify-between p-4">
-                                <div className="space-y-2">
-                                    {item.icon}
-                                    <h4 className="text-gray-800 font-semibold">
-                                        {item.title}
-                                    </h4>
-                                    <p className="text-gray-600 text-sm">
-                                        {item.desc}
-                                    </p>
-                                </div>
-                                <button className="text-gray-700 text-sm border rounded-lg px-3 py-2 duration-150 hover:bg-gray-100">
-                                    Connect
-                                </button>
-                            </div>
-                            <div className="py-5 px-4 border-t text-right">
-                                <a
-                                    href="javascript:void(0)"
-                                    className="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
-                                >
-                                    View integration
-                                </a>
-                            </div> */}
                         </li>
                     </ul>
                 </div>
@@ -219,40 +155,65 @@ export default function Index(props) {
                 title={"Node"}
             >
                 <form onSubmit={submit}>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                         <div className="col-span-1">
-                            <TextInput
-                                label={"Name"}
-                                id="name"
-                                type="text"
-                                name="name"
-                                value={data.name}
-                                onChange={(e) =>
-                                    setData("name", e.target.value)
-                                }
-                                required
-                            />
-                            <TextInput
-                                label={"Latitude"}
-                                id="Latitude"
-                                type="text"
-                                name="Latitude"
-                                value={data.lat}
-                                onChange={(e) => setData("lat", e.target.value)}
-                                required
-                            />
-                            <TextInput
-                                label={"Longtitude"}
-                                id="Longtitude"
-                                type="text"
-                                name="Longtitude"
-                                value={data.lng}
-                                onChange={(e) => setData("lng", e.target.value)}
-                                required
-                            />
+                            {isLoading && (
+                                <div
+                                    role="status"
+                                    class="max-w-sm animate-pulse"
+                                >
+                                    <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                
+                            )}
+                            {!isLoading && (
+                                <div>
+                                    <TextInput
+                                        label={"Name"}
+                                        id="name"
+                                        type="text"
+                                        name="name"
+                                        value={data.name}
+                                        onChange={(e) =>
+                                            setData("name", e.target.value)
+                                        }
+                                        required
+                                    />
+                                    <TextInput
+                                        label={"Latitude"}
+                                        id="Latitude"
+                                        type="text"
+                                        name="Latitude"
+                                        value={data.lat}
+                                        // onChange={(e) => setData("lat", dataLat)}
+                                        disabled
+                                    />
+                                    <TextInput
+                                        label={"Longtitude"}
+                                        id="Longtitude"
+                                        type="text"
+                                        name="Longdata.nametitude"
+                                        value={data.lng}
+                                        // onChange={(e) => setData("lng", dataLng)}
+                                        disabled
+                                    />
+                                </div>
+                            )}
                         </div>
                         <div className="col-span-1">
-                            <MapboxMap api_token={props.map_token} />
+                            <MapboxMap
+                                api_token={props.map_token}
+                                setDataLat={setDataLat}
+                                setDataLng={setDataLng}
+                                setDataCityName={setDataCityName}
+                                setIsLoading={setIsLoading}
+                            />
                         </div>
                     </div>
 
@@ -262,7 +223,7 @@ export default function Index(props) {
                             // onClick={() => setOpenModal(false)}
                             type="submit"
                         >
-                            Accept
+                            Simpan
                         </button>
                         <button
                             className="px-6 py-2 text-gray-800 border rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"

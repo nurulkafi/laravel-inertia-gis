@@ -16,11 +16,14 @@ class NodeController extends Controller
     //
     public function index(Request $request): Response
     {
+
         return Inertia::render('Node/Index', [
-            'datas' => Node::get(),
+            'datas' => Node::latest()->paginate(10),
             'map_token' => env("MAP_BOX_API_KEY")
             // 'status' => session('status'),
         ]);
+        // dd();
+
     }
     public function create(Request $request)
     {
@@ -34,7 +37,7 @@ class NodeController extends Controller
                 'picture' => 'picture',
                 'description' => 'description'
             ]);
-            sleep(1);
+            // sleep(1);
 
             // return redirect()->route('node.index')->with('message', 'Blog Created Successfully');
             // return Redirect::route('node.index')->with('message', 'Data Berhasil Disimpan!');
@@ -45,11 +48,9 @@ class NodeController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return back()->with([
-                'type' => 'failed',
-                'message' => 'Terjadi Kesalahan!',
+                'type' => 'error',
+                'message' => 'Terdapat Kesalahan Coba Lagi!',
             ]);
         }
-
-
     }
 }
