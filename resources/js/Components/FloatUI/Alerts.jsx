@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
-export default function Alerts({ type, message,show=true }) {
-    const [showAlert, setShowAlert] = useState(show);
-    console.log("showAlert", showAlert);
+export default function Alerts({ type, message, showAlert, setShowAlert }) {
+    // const [showAlert, setShowAlert] = useState(show);
+    // console.log("showAlert", show);
 
     useEffect(() => {
         const timeout = setTimeout(() => {

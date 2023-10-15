@@ -4,7 +4,7 @@ export default function Modal ({show,setShow,jenis,title,children}) {
     // const [show, setState] = useState(true);
 
     return show ? (
-        <div className="fixed inset-0 z-10 overflow-y-auto">
+        <div className="fixed inset-0 z-10 overflow-y-auto ">
             <div
                 className="fixed inset-0 w-full h-full bg-black opacity-40"
                 onClick={() => setShow(false)}
