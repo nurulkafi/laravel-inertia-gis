@@ -20,10 +20,14 @@
         #map {
             /* width: 100%;
             height: 100%; */
-            height: 550px;width: 100%;
+            height: 550px;
+            width: 100%;
+            border-radius: 10px;
             /* Peta mengisi tinggi kolom secara penuh */
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
     <!-- Scripts -->
     @routes
     @viteReactRefresh
@@ -34,7 +38,8 @@
 <body class="font-sans antialiased">
     @inertia
 </body>
-<script>
+
+{{-- <script>
     mapboxgl.accessToken =
         'pk.eyJ1IjoibnVydWxrYWZpMTgiLCJhIjoiY2xuanR1YmI4MG5oMzJpczMyMHNjcDg5ayJ9.oIQMObaIjF74R0w1KwzAUg';
     const map = new mapboxgl.Map({
@@ -44,6 +49,6 @@
         center: [-74.5, 40], // starting position [lng, lat]
         zoom: 9 // starting zoom
     });
-</script>
+</script> --}}
 
 </html>
