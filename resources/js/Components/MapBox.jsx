@@ -12,6 +12,7 @@ function MapboxMap({
     dataTitikMulai = null,
     dataTitikTujuan = null,
     setDistance,
+    dataAlgoritma = null,
 }) {
     const [data, setData] = useState("");
     useEffect(() => {
@@ -133,8 +134,78 @@ function MapboxMap({
                 // Tampilkan popup saat marker di klik
                 marker.setPopup(popup);
             });
+        } else if (usageFor === "Algoritma") {
+            function createLineCoordinates(data, color) {
+                return data
+                    ?.map((item) => [
+                        [parseFloat(item.lngStart), parseFloat(item.latStart)],
+                        [parseFloat(item.lngEnd), parseFloat(item.latEnd)],
+                    ])
+                    .flat();
+            }
+
+            function addLineToMap(map, id, coordinates, color) {
+                map.addSource(id, {
+                    type: "geojson",
+                    data: {
+                        type: "Feature",
+                        properties: {},
+                        geometry: {
+                            type: "LineString",
+                            coordinates: coordinates,
+                        },
+                    },
+                });
+
+                map.addLayer({
+                    id: id,
+                    type: "line",
+                    source: id,
+                    layout: {
+                        "line-join": "round",
+                        "line-cap": "round",
+                    },
+                    paint: {
+                        "line-color": color,
+                        "line-width": 4,
+                    },
+                });
+            }
+
+            map.on("load", function () {
+                const lineCoordinates = createLineCoordinates(
+                    dataAlgoritma?.result_algoritma_shortpath,
+                    "green"
+                );
+                const lineData = dataAlgoritma?.result_all_path;
+
+                // Tambahkan garis dari result_algoritma_shortpath
+                addLineToMap(map, "line1", lineCoordinates, "green");
+
+                if (lineData && Array.isArray(lineData)) {
+                    lineData.forEach((data, index) => {
+                        const color = "red";
+                        const id = `line${index + 2}`;
+                        const coordinates = createLineCoordinates(data, color);
+                        addLineToMap(map, id, coordinates, color);
+                    });
+                }
+            });
+
+            dataNode.forEach((value) => {
+                const marker = new mapboxgl.Marker({ color: "#7d000c" })
+                    .setLngLat([value?.lng, value?.lat])
+                    .addTo(map);
+                // Buat konten popup berdasarkan node.name
+                const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                    `<h3>${value?.name}</h3>`
+                );
+
+                // Tampilkan popup saat marker di klik
+                marker.setPopup(popup);
+            });
         }
-    }, [api_token, dataTitikMulai, dataTitikTujuan]); // Pastikan untuk menambahkan api_token sebagai dependensi
+    }, [api_token, dataTitikMulai, dataTitikTujuan,dataAlgoritma]); // Pastikan untuk menambahkan api_token sebagai dependensi
 
     return (
         <>
