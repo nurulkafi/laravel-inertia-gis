@@ -11,6 +11,7 @@ export default function Index(props) {
     const auth = props.auth;
     const graph = props.graph;
     const node = props.node;
+    console.log('gr',graph)
     const [openModal, setOpenModal] = useState(false);
     const [titikMulai, setTitikMulai] = useState(null);
     const [titikTujuan, setTitikTujuan] = useState(null);
