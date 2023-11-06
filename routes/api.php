@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlgoritmaController;
 use App\Http\Controllers\Api\ConsumableApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/location_info', [ConsumableApiController::class, 'getLocationInfo']);
+Route::get('/djikstra/result/{titikMulai}/{titikTujuan}', [AlgoritmaController::class, 'getDataAlgoritmaDjikstraJson']);
+Route::get('/astar/result/{titikMulai}/{titikTujuan}', [AlgoritmaController::class, 'getDataAlgoritmaAstarJson']);

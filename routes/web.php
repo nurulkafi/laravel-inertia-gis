@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlgoritmaController;
 use App\Http\Controllers\GraphController;
 use App\Http\Controllers\NodeController;
 use App\Http\Controllers\ProfileController;
@@ -37,8 +38,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/node', [NodeController::class, 'create'])->name('node.create');
     Route::get('/graph', [GraphController::class, 'index'])->name('graph.index');
     Route::post('/graph', [GraphController::class, 'create'])->name('graph.create');
+    Route::get('/algoritma/djikstra', [AlgoritmaController::class, 'index'])->name('algoritma.index');
+    Route::get('/algoritma/astar', [AlgoritmaController::class, 'indexAstar']);
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+Route::get('/test', [AlgoritmaController::class, 'test'])->name('algoritma.test');
 
 require __DIR__.'/auth.php';
