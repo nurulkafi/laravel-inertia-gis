@@ -170,7 +170,6 @@ export default function Index(props) {
                                     <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
                                     <span class="sr-only">Loading...</span>
                                 </div>
-                                
                             )}
                             {!isLoading && (
                                 <div>
@@ -213,6 +212,8 @@ export default function Index(props) {
                                 setDataLng={setDataLng}
                                 setDataCityName={setDataCityName}
                                 setIsLoading={setIsLoading}
+                                dataNode={props?.node}
+                                icon={props?.icon}
                             />
                         </div>
                     </div>

@@ -19,7 +19,8 @@ class NodeController extends Controller
 
         return Inertia::render('Node/Index', [
             'datas' => Node::latest()->paginate(10),
-            'map_token' => env("MAP_BOX_API_KEY")
+            'map_token' => env("MAP_BOX_API_KEY"),
+            'node' => Node::get(),
             // 'status' => session('status'),
         ]);
         // dd();
@@ -31,7 +32,7 @@ class NodeController extends Controller
         try {
             $save = Node::create([
                 'name' => $request->name,
-                'type' => "TEST",
+                'type' => "Jalan",
                 'lat' => $request->lat,
                 'lng' => $request->lng,
                 'picture' => 'picture',

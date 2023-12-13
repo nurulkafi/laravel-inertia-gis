@@ -14,4 +14,13 @@ class Graph extends Model
      * @var array
      */
     protected $guarded = [];
+    public function startCoordinate()
+    {
+        return $this->belongsTo(Node::class, 'start');
+    }
+
+    public function endCoordinate()
+    {
+        return $this->belongsTo(Node::class, 'end');
+    }
 }

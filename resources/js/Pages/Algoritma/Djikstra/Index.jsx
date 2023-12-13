@@ -42,7 +42,7 @@ export default function Index(props) {
                 });
         }
     }, [titikMulai, titikTujuan]);
-
+    console.log('data Algoritma ',dataAlgoritma)
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -134,6 +134,7 @@ export default function Index(props) {
                                         usageFor="Algoritma"
                                         dataNode={node}
                                         dataAlgoritma={dataAlgoritma}
+                                        icon={props?.icon}
                                     />
                                 </div>
                                 <div className="mt-10">

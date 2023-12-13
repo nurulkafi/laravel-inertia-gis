@@ -20,10 +20,19 @@
         #map {
             /* width: 100%;
             height: 100%; */
-            height: 550px;
+            height: 750px;
             width: 100%;
             border-radius: 10px;
             /* Peta mengisi tinggi kolom secara penuh */
+        }
+
+        .marker {
+            display: block;
+            border: none;
+            /* border-radius: 50%; */
+            cursor: pointer;
+            padding: 0;
+            background-repeat: no-repeat;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>

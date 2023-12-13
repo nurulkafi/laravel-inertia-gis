@@ -14,4 +14,18 @@ class Node extends Model
      * @var array
      */
     protected $guarded = [];
+    public function outgoingEdges()
+    {
+        return $this->hasMany(Graph::class, 'start');
+    }
+
+    public function incomingEdges()
+    {
+        return $this->hasMany(Graph::class, 'end');
+    }
+    public function graphs()
+    {
+        return $this->hasMany(Graph::class, 'start');
+    }
+    
 }

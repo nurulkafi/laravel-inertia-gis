@@ -13,6 +13,7 @@ function MapboxMap({
     dataTitikTujuan = null,
     setDistance,
     dataAlgoritma = null,
+    icon,
 }) {
     const [data, setData] = useState("");
     useEffect(() => {
@@ -21,8 +22,8 @@ function MapboxMap({
             container: "map", // container ID
             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: "mapbox://styles/mapbox/streets-v12", // style URL
-            center: [107.610112, -6.9107712], // starting position [lng, lat]
-            zoom: 15, // starting zoom
+            center: dataTitikMulai !== null ? [dataTitikMulai?.lng,dataTitikMulai?.lat] : [107.53606, -6.901729], // starting position [lng, lat]
+            zoom: 17, // starting zoom
         });
         map.addControl(new mapboxgl.NavigationControl());
         map.addControl(
@@ -38,6 +39,61 @@ function MapboxMap({
         );
         var marker;
         if (usageFor === "Node") {
+            dataNode.forEach((value) => {
+                if (value?.type?.toLowerCase() === "kantor") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.pemadam})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `35px`;
+                    el.style.height = `35px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                }
+                if (value?.type?.toLowerCase() === "kejadian") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.kejadian})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `25px`;
+                    el.style.height = `25px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                } else {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.dot})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `25px`;
+                    el.style.height = `25px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.id} - ${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+            }
+            });
             map.on("click", function (e) {
                 if (marker) {
                     marker.remove();
@@ -122,17 +178,69 @@ function MapboxMap({
                 setDistance(distance.toFixed(2));
             }
             // console.log("dataTitikTujuan", dataTitikTujuan);
-            dataNode.forEach((value) => {
-                const marker = new mapboxgl.Marker({ color: "#7d000c" })
-                    .setLngLat([value?.lng, value?.lat])
-                    .addTo(map);
-                // Buat konten popup berdasarkan node.name
-                const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                    `<h3>${value?.name}</h3>`
-                );
+            dataNode?.forEach((value) => {
+                // const marker = new mapboxgl.Marker({ color: "#7d000c" })
+                //     .setLngLat([value?.lng, value?.lat])
+                //     .addTo(map);
+                // // Buat konten popup berdasarkan node.name
+                // const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                //     `<h3>${value?.name}</h3>`
+                // );
 
-                // Tampilkan popup saat marker di klik
-                marker.setPopup(popup);
+                // // Tampilkan popup saat marker di klik
+                // marker.setPopup(popup);
+                if (value?.type?.toLowerCase() === "kantor") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.pemadam})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `35px`;
+                    el.style.height = `35px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.id} - ${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                } else if (value?.type?.toLowerCase() === "kejadian") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.kejadian})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `25px`;
+                    el.style.height = `25px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.id} - ${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                } else {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.dot})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `25px`;
+                    el.style.height = `25px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.id} - ${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                }
             });
         } else if (usageFor === "Algoritma") {
             function createLineCoordinates(data, color) {
@@ -180,32 +288,59 @@ function MapboxMap({
                 const lineData = dataAlgoritma?.result_all_path;
 
                 // Tambahkan garis dari result_algoritma_shortpath
-                addLineToMap(map, "line1", lineCoordinates, "green");
-
                 if (lineData && Array.isArray(lineData)) {
                     lineData.forEach((data, index) => {
                         const color = "red";
                         const id = `line${index + 2}`;
                         const coordinates = createLineCoordinates(data, color);
                         addLineToMap(map, id, coordinates, color);
-                    });
+                    }); 
                 }
+                addLineToMap(map, "line1", lineCoordinates, "green");
+
             });
 
             dataNode.forEach((value) => {
-                const marker = new mapboxgl.Marker({ color: "#7d000c" })
-                    .setLngLat([value?.lng, value?.lat])
-                    .addTo(map);
-                // Buat konten popup berdasarkan node.name
-                const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                    `<h3>${value?.name}</h3>`
-                );
+                if (value?.type?.toLowerCase() === "kantor") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.pemadam})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `35px`;
+                    el.style.height = `35px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
 
-                // Tampilkan popup saat marker di klik
-                marker.setPopup(popup);
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                }
+                if (value?.type?.toLowerCase() === "kejadian") {
+                    let el = document.createElement("div");
+                    el.className = "marker";
+                    el.style.backgroundImage = `url(${icon?.kejadian})`;
+                    // el.style.backgroundImage = `url(https://placekitten.com/g/20/20/)`;
+                    el.style.width = `25px`;
+                    el.style.height = `25px`;
+                    el.style.backgroundSize = "100%";
+                    const marker = new mapboxgl.Marker(el)
+                        .setLngLat([value?.lng, value?.lat])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                        `<h3>${value?.name}</h3>`
+                    );
+
+                    marker.setPopup(popup);
+                }
             });
+            // console.log("data", icon);
         }
-    }, [api_token, dataTitikMulai, dataTitikTujuan,dataAlgoritma]); // Pastikan untuk menambahkan api_token sebagai dependensi
+    }, [api_token, dataTitikMulai, dataTitikTujuan, dataAlgoritma, dataNode]); // Pastikan untuk menambahkan api_token sebagai dependensi
 
     return (
         <>

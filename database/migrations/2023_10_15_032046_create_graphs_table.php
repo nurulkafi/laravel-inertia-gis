@@ -17,6 +17,7 @@ return new class extends Migration
             $table->bigInteger('end');
             $table->string('distance');
             $table->string('time')->nullable();
+            $table->index(['start','end']);
             $table->timestamps();
         });
     }

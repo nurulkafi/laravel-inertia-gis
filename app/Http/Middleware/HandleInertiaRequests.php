@@ -30,6 +30,9 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $iconPemadam = asset('asset/img/pemadam.png');
+        $iconKejadian = asset('asset/img/lokasi.png');
+        $iconDot = asset('asset/img/dot.png');
         return [
             ...parent::share($request),
             'auth' => [
@@ -43,6 +46,11 @@ class HandleInertiaRequests extends Middleware
                 'type' => fn () => $request->session()->get('type'),
                 'message' => fn () => $request->session()->get('message')
             ],
+            'icon' => [
+                'pemadam' => fn()=> $iconPemadam,
+                'kejadian' => fn () => $iconKejadian,
+                'dot' => fn () => $iconDot
+            ]
         ];
     }
 }

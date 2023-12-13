@@ -50,4 +50,17 @@ class GraphController extends Controller
             ]);
         }
     }
+    public function add(Request $request): Response
+    {
+        $unconnectedNodes = Node::whereDoesntHave('outgoingEdges')
+            ->orWhereDoesntHave('incomingEdges')
+            ->get();
+        return Inertia::render('Graph/Partials/form', [
+            'node' => Node::get(),
+            'unconnectedNodes' => $unconnectedNodes,
+            'map_token' => env("MAP_BOX_API_KEY")
+            // 'status' => session('status'),
+        ]);
+        // dd($graph);
+    }
 }

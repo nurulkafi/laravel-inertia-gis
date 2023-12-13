@@ -7,11 +7,12 @@ import TextInput from "@/Components/FloatUI/TextInput";
 import MapboxMap from "@/Components/MapBox";
 import Select from "@/Components/FloatUI/Select";
 import TableData from "./Partials/tableData";
+import { Link, usePage } from "@inertiajs/react";
 export default function Index(props) {
     const auth = props.auth;
     const graph = props.graph;
     const node = props.node;
-    console.log('gr',graph)
+    // console.log('gr',graph)
     const [openModal, setOpenModal] = useState(false);
     const [titikMulai, setTitikMulai] = useState(null);
     const [titikTujuan, setTitikTujuan] = useState(null);
@@ -81,12 +82,19 @@ export default function Index(props) {
                                         </p>
                                     </div>
                                     <div className="mt-3 md:mt-0">
-                                        <button
+                                        {/* <button
                                             onClick={() => setOpenModal(true)}
                                             className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
                                         >
                                             Add Graph
-                                        </button>
+                                        </button> */}
+                                        <Link
+                                            href="/add-graph"
+                                            className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
+                                        >
+                                            Add Graph
+                                            {/* <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" /> */}
+                                        </Link>
                                     </div>
                                 </div>
                                 <TableData datas={graph} />
@@ -153,6 +161,7 @@ export default function Index(props) {
                                         dataTitikMulai={NodeTitikMulai}
                                         dataTitikTujuan={NodeTitikTujuan}
                                         setDistance={setDistance}
+                                        icon={props?.icon}
                                     />
                                 </div>
                             </div>

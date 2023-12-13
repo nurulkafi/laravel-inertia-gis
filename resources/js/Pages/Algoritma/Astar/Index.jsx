@@ -16,7 +16,7 @@ export default function Index(props) {
     const auth = props.auth;
     const node = props.node;
     const algoritma = props.algoritma;
-
+    console.log("props?.icon", props?.icon);
     const [openModal, setOpenModal] = useState(false);
     const [dataLat, setDataLat] = useState("");
     const [dataLng, setDataLng] = useState("");
@@ -73,8 +73,9 @@ export default function Index(props) {
                                             grafik atau peta. Algoritma ini
                                             menggabungkan pendekatan Greedy
                                             Best-First Search (GBFS) dengan
-                                            biaya terakumulasi dan heuristik(Algoritma Haversine)
-                                            untuk memandu pencarian
+                                            biaya terakumulasi dan
+                                            heuristik(Algoritma Haversine) untuk
+                                            memandu pencarian
                                         </p>
                                     </div>
                                 </div>
@@ -130,6 +131,7 @@ export default function Index(props) {
                                         usageFor="Algoritma"
                                         dataNode={node}
                                         dataAlgoritma={dataAlgoritma}
+                                        icon={props?.icon}
                                     />
                                 </div>
                                 <div className="mt-10">
