@@ -44,7 +44,7 @@ class AlgoritmaController extends Controller
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
                         ->where('end', $next_node)
-                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance')
+                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','bobot')
                         ->first();
 
                     if ($neighbor) {
@@ -67,7 +67,7 @@ class AlgoritmaController extends Controller
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
                     ->where('end', $next_node)
-                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance')
+                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','bobot')
 
                     ->first();
 
@@ -263,7 +263,7 @@ class AlgoritmaController extends Controller
             foreach ($neighbors as $neighbor) {
                 // Menentukan tetangga dan jarak ke tetangga
                 $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-                $distance = $neighbor->distance;
+                $distance = $neighbor->bobot;
 
                 // Pastikan bahwa neighborId tidak sama dengan id node saat ini
                 if ($neighborId != $node->id) {
