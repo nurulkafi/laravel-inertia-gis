@@ -42,7 +42,8 @@ export default function Index(props) {
                 });
         }
     }, [titikMulai, titikTujuan]);
-
+    const Kantor = node?.filter((val) => val.type === "Kantor");
+    const Kejadian = node?.filter((val) => val.type === "Kejadian");
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -89,7 +90,7 @@ export default function Index(props) {
                                         }}
                                         // onChange={handleChange}
                                         // options={options}
-                                        options={node?.map((item) => {
+                                        options={Kantor?.map((item) => {
                                             return {
                                                 value: item.id,
                                                 label:
@@ -105,7 +106,7 @@ export default function Index(props) {
                                             setTitikTujuan(e);
                                         }}
                                         // options={options}
-                                        options={node?.map((item) => {
+                                        options={Kejadian?.map((item) => {
                                             return {
                                                 value: item.id,
                                                 label:

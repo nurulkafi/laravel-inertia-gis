@@ -33,6 +33,7 @@ class HandleInertiaRequests extends Middleware
         $iconPemadam = asset('asset/img/pemadam.png');
         $iconKejadian = asset('asset/img/lokasi.png');
         $iconDot = asset('asset/img/dot.png');
+        $logo = asset('asset/img/logo3.png');
         return [
             ...parent::share($request),
             'auth' => [
@@ -49,7 +50,8 @@ class HandleInertiaRequests extends Middleware
             'icon' => [
                 'pemadam' => fn()=> $iconPemadam,
                 'kejadian' => fn () => $iconKejadian,
-                'dot' => fn () => $iconDot
+                'dot' => fn () => $iconDot,
+                'logo' => fn () => $logo
             ]
         ];
     }
