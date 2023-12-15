@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+
 class AlgoritmaController extends Controller
 {
     public function index()
@@ -44,7 +45,7 @@ class AlgoritmaController extends Controller
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
                         ->where('end', $next_node)
-                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','bobot')
+                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
                         ->first();
 
                     if ($neighbor) {
@@ -67,7 +68,7 @@ class AlgoritmaController extends Controller
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
                     ->where('end', $next_node)
-                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','bobot')
+                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
 
                     ->first();
 
@@ -107,7 +108,11 @@ class AlgoritmaController extends Controller
 
             foreach ($neighbors as $neighbor) {
                 $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-                $distance = $neighbor->bobot;
+                $tingkatKemacetanStart = Node::findOrFail($neighbor->start)->tingkatKemacetan;
+                $tingkatKemacetanEnd = Node::findOrFail($neighbor->end)->tingkatKemacetan;
+                $tipeJalanStart = Node::findOrFail($neighbor->start)->tipeJalan;
+                $tipeJalanEnd = Node::findOrFail($neighbor->end)->tipeJalan;
+                $distance = $neighbor->distance + $tingkatKemacetanStart + $tingkatKemacetanEnd + $tipeJalanStart + $tipeJalanEnd;
 
                 // Pastikan neighborId tidak sama dengan id node saat ini
                 if ($neighborId != $node->id) {
@@ -131,9 +136,7 @@ class AlgoritmaController extends Controller
                     $neighbor = Graph::join('nodes as startNode', 'start', '=', 'startNode.id')
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
-                        ->where('end', $next_node)
-                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','lastUpdate','bobot')
-                        ->first();
+                        ->where('end', $next_node)->first();
 
                     if ($neighbor) {
                         $pathData[] = $neighbor;
@@ -154,10 +157,7 @@ class AlgoritmaController extends Controller
                 $neighbor = Graph::join('nodes as startNode', 'start', '=', 'startNode.id')
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
-                    ->where('end', $next_node)
-                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance','tingkatKemacetan','lastUpdate','bobot')
-
-                    ->first();
+                    ->where('end', $next_node)->first();
 
                 if ($neighbor) {
                     $result_shortpath[] = $neighbor;
@@ -419,61 +419,7 @@ class AlgoritmaController extends Controller
 
         return $paths;
     }
-    // public function updateNode()
-    // {
-    //     try {
-    //         $nodes = Node::get();
-
-    //         foreach ($nodes as $value) {
-    //             $graph = Graph::where('start',$value->id)->get();
-    //             foreach ($graph as $g) {
-    //                 $startCordinat = Node::findOrFail($g->start);
-    //                 $endCordinat = Node::findOrFail($g->end);
-    //                 $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:" . $startCordinat->lat . ",$startCordinat->lng;r=100&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
-    //                 $data = $response->json();
-
-    //                 if ($response->successful() && isset($data['results'])) {
-    //                     $results = $data['results'];
-    //                     $isKetemu = false;
-    //                     foreach ($results as $result) {
-    //                         $location = $result['location'];
-    //                         $name = isset($location['description']) ? $location['description'] : 'Unknown';
-
-    //                         $shapeLinks = $location['shape']['links'];
-
-    //                         // Tambahkan variabel untuk menyimpan ID node sebelumnya
-
-
-    //                         foreach ($shapeLinks as $link) {
-    //                             $points = $link['points'];
-
-    //                             foreach ($points as $point) {
-    //                                 // Pemeriksaan apakah Node dengan latitude dan longitude yang sama sudah ada
-    //                                 $lat  = $point['lat'];
-    //                                 $lng  = $point['lng'];
-    //                                 $haversine = $this->haversine($startCordinat->lat,$startCordinat->lng,$lat,$lng);
-    //                                 if ($haversine <= 0.05) {
-    //                                     $isKetemu = true;
-    //                                 }
-    //                             }
-    //                         }
-    //                         if ($isKetemu) {
-    //                             $jamFactor = $result['currentFlow']['jamFactor'];
-    //                             $jamFactor = $jamFactor/10;
-    //                             $distance = $g->distance + $jamFactor;
-    //                             $graph = Graph::findOrFail($g->id)->update(['distance' => $distance, 'time' => 0]);
-    //                         }
-    //                     }
-
-    //                     return response()->json(['message' => 'Graph updated successfully'], 200);
-    //                 }
-    //             }
-    //         }
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
-    public function updateNode()
+    public function updateGraph()
     {
         try {
             $graph = Graph::get();
@@ -533,131 +479,182 @@ class AlgoritmaController extends Controller
     // public function updateNode()
     // {
     //     try {
-    //         // Pemanggilan HTTP dilakukan di luar loop node
-    //         $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:-6.9018171475575,107.53609397738;r=10000&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
-    //         $data = $response->json();
+    //         $node = Node::get();
+    //         $prevNode = null;
+    //         foreach ($node as $n) {
+    //             $startCoordinate = Node::findOrFail($n->start);
+    //             if ($prevNode) {
+    //                 $distance = $this->haversine($n->lat, $n->lng, $prevNode->lat, $prevNode->lng);
+    //                 if ($distance <= 0.1) {
+    //                     # code...
+    //                     $updateNode = Node::findOrFail($n->id);
+    //                     // $updateNode->distance = $distanceAwal;
+    //                     // $updateNode->time = 0;
+    //                     // $updateNode->bobot = $distance;
+    //                     $updateNode->tingkatKemacetan = $prevNode->tingkatKemacetan;
+    //                     $updateNode->lastUpdate = $prevNode->lastUpdate;
+    //                     $updateNode->save();
+    //                 }else{
+    //                     $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:" . $n->lat . ",$n->lng;r=100&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
+    //                     $data = $response->json();
 
-    //         if (!$response->successful() || !isset($data['results'])) {
-    //             return response()->json(['error' => 'Failed to fetch or parse API response'], 500);
-    //         }
+    //                     if ($response->successful() && isset($data['results'])) {
+    //                         $results = $data['results'];
 
-    //         $results = $data['results'];
+    //                         foreach ($results as $result) {
+    //                             $location = $result['location'];
+    //                             $shapeLinks = $location['shape']['links'];
 
+    //                             $isFound = false;
 
-    //         // Loop melalui setiap node
-    //         $nodes = Node::get();
+    //                             foreach ($shapeLinks as $link) {
+    //                                 $points = $link['points'];
 
-    //         foreach ($nodes as $node) {
-    //             // Menggunakan query langsung untuk mendapatkan graf terkait
-    //             $graphs = Graph::where('start', $node->id)->get();
+    //                                 foreach ($points as $point) {
+    //                                     $lat = $point['lat'];
+    //                                     $lng = $point['lng'];
+    //                                     $haversine = $this->haversine($startCoordinate->lat, $startCoordinate->lng, $lat, $lng);
 
-    //             foreach ($graphs as $graph) {
-    //                 $startNode = Node::find($graph->start);
-    //                 $endNode = Node::find($graph->end);
-
-    //                 // Periksa apakah node ditemukan sebelum mengakses propertinya
-    //                 if ($startNode && $endNode) {
-    //                     $distanceAwal = $this->haversine($startNode->lat, $startNode->lng, $endNode->lat, $endNode->lng);
-    //                     $isFound = false;
-
-    //                     foreach ($results as $result) {
-    //                         $shapeLinks = $result['location']['shape']['links'];
-
-    //                         foreach ($shapeLinks as $link) {
-    //                             foreach ($link['points'] as $point) {
-    //                                 $haversine = $this->haversine($startNode->lat, $startNode->lng, $point['lat'], $point['lng']);
-
-    //                                 if ($haversine <= 0.05) {
-    //                                     $isFound = true;
-    //                                     break 3; // Keluar dari semua loop
+    //                                     if ($haversine <= 0.010) {
+    //                                         $isFound = true;
+    //                                     }
     //                                 }
     //                             }
-    //                         }
 
-    //                         if ($isFound) {
-    //                             $jamFactor = $result['currentFlow']['jamFactor'] / 100;
-    //                             $distance = $distanceAwal + $jamFactor;
+    //                             if ($isFound) {
+    //                                 $jamFactors = $result['currentFlow']['jamFactor'];
+    //                                 // $jamFactor = $jamFactors / 100;
+    //                                 // $distance = $distanceAwal + $jamFactors;
 
-    //                             // Gunakan metode update langsung pada model Graph
-    //                             Graph::where('id', $graph->id)->update(['distance' => $distance, 'time' => 2]);
-    //                             break; // Keluar dari loop result
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         // Pindahkan return statement di luar loop jika perlu
-    //         return response()->json(['message' => 'Graph updated successfully'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
-    // public function updateNode()
-    // {
-    //     try {
-    //         $graph = Graph::with(['startCoordinate', 'endCoordinate'])->get();
-
-    //         DB::beginTransaction();
-
-    //         foreach ($graph as $g) {
-    //             $startCoordinate = $g->startCoordinate;
-    //             $endCoordinate = $g->endCoordinate;
-
-    //             $distanceAwal = $this->haversine($startCoordinate->lat, $startCoordinate->lng, $endCoordinate->lat, $endCoordinate->lng);
-
-    //             $response = Cache::remember('traffic_data', now()->addMinutes(5), function () use ($startCoordinate) {
-    //                 $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:" . $startCoordinate->lat . ",$startCoordinate->lng;r=50&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
-    //             });
-
-    //             if (isset($response['results'])) {
-    //                 $results = $response['results'];
-
-
-    //                 foreach ($results as $result) {
-    //                     $location = $result['location'];
-    //                     $shapeLinks = $location['shape']['links'];
-
-    //                     $isFound = false;
-    //                     foreach ($shapeLinks as $link) {
-    //                         $points = $link['points'];
-
-    //                         foreach ($points as $point) {
-    //                             $lat = $point['lat'];
-    //                             $lng = $point['lng'];
-    //                             $haversine = $this->haversine($startCoordinate->lat, $startCoordinate->lng, $lat, $lng);
-
-    //                             if ($haversine <= 0.05) {
-    //                                 $isFound = true;
-    //                                 break 3; // Keluar dari kedua loop
+    //                                 // Gunakan metode update langsung pada model Graph
+    //                                 $updateNode = Node::findOrFail($n->id);
+    //                                 // $updateNode->distance = $distanceAwal;
+    //                                 // $updateNode->time = 0;
+    //                                 // $updateNode->bobot = $distance;
+    //                                 $updateNode->tingkatKemacetan = $jamFactors;
+    //                                 $updateNode->lastUpdate = $response['sourceUpdated'];
+    //                                 $updateNode->save();
     //                             }
     //                         }
     //                     }
-
-    //                     if ($isFound) {
-    //                         $jamFactor = $result['currentFlow']['jamFactor'];
-    //                         // $jamFactor = $jamFactor / 100;
-    //                         $distance = $distanceAwal + $jamFactor;
-
-    //                         // Gunakan metode update langsung pada model Graph
-    //                         $updatedGraph = Graph::findOrFail($g->id);
-    //                         $updatedGraph->bobot = $distance;
-    //                         $updatedGraph->tingkatKemacetan = $jamFactor;
-    //                         $updatedGraph->lastUpdate = $response['sourceUpdated'];
-    //                         $updatedGraph->save();
-    //                     }
     //                 }
     //             }
+
+    //             $prevNode = $n;
     //         }
-
-    //         DB::commit();
-
-    //         return response()->json(['message' => 'Graph updated successfully'], 200);
+    //         // Pindahkan return statement di luar loop jika perlu
+    //         return response()->json(['message' => 'Node updated successfully'], 200);
     //     } catch (\Exception $e) {
-    //         DB::rollback();
     //         return response()->json(['error' => $e->getMessage()], 500);
     //     }
     // }
+    public function updateNode()
+    {
+        try {
+            $node = Node::orderBy('id')->get();
+            $prevNode = null;
+
+            foreach ($node as $n) {
+                if ($prevNode) {
+                    $distance = $this->haversine($n->lat, $n->lng, $prevNode->lat, $prevNode->lng);
+
+                    if ($distance <= 0.1 && $prevNode->tingkatKemacetan != 0) {
+                        $updateNode = Node::findOrFail($n->id);
+                        $updateNode->tingkatKemacetan = $prevNode->tingkatKemacetan;
+                        $updateNode->lastUpdate = $prevNode->lastUpdate;
+                        $updateNode->save();
+                    } else {
+                        $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:" . $n->lat . ",$n->lng;r=100&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
+                        $data = $response->json();
+
+                        if ($response->successful() && isset($data['results'])) {
+                            $results = $data['results'];
+
+                            foreach ($results as $result) {
+                                $location = $result['location'];
+                                $shapeLinks = $location['shape']['links'];
+
+                                $isFound = false;
+
+                                foreach ($shapeLinks as $link) {
+                                    $points = $link['points'];
+
+                                    foreach ($points as $point) {
+                                        $lat = $point['lat'];
+                                        $lng = $point['lng'];
+                                        $haversine = $this->haversine($n->lat, $n->lng, $lat, $lng);
+
+                                        if ($haversine <= 0.01) {
+                                            $isFound = true;
+                                        }
+                                    }
+                                }
+
+                                if ($isFound) {
+                                    $jamFactors = $result['currentFlow']['jamFactor'];
+                                    $updateNode = Node::findOrFail($n->id);
+                                    $updateNode->tingkatKemacetan = $jamFactors;
+                                    $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                    $updateNode->save();
+                                } else {
+                                    $updateNode = Node::findOrFail($n->id);
+                                    $updateNode->tingkatKemacetan = 0;
+                                    $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                    $updateNode->save();
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    $response = Http::get("https://data.traffic.hereapi.com/v7/flow?in=circle:" . $n->lat . ",$n->lng;r=100&apiKey=I1UVxb4Tk7gzeKoX8OrmvwA140CnQmU4aDd-m5aAOpM&locationReferencing=shape");
+                    $data = $response->json();
+
+                    if ($response->successful() && isset($data['results'])) {
+                        $results = $data['results'];
+
+                        foreach ($results as $result) {
+                            $location = $result['location'];
+                            $shapeLinks = $location['shape']['links'];
+
+                            $isFound = false;
+
+                            foreach ($shapeLinks as $link) {
+                                $points = $link['points'];
+
+                                foreach ($points as $point) {
+                                    $lat = $point['lat'];
+                                    $lng = $point['lng'];
+                                    $haversine = $this->haversine($n->lat, $n->lng, $lat, $lng);
+
+                                    if ($haversine <= 0.010) {
+                                        $isFound = true;
+                                    }
+                                }
+                            }
+
+                            if ($isFound) {
+                                $jamFactors = $result['currentFlow']['jamFactor'];
+                                $updateNode = Node::findOrFail($n->id);
+                                $updateNode->tingkatKemacetan = $jamFactors;
+                                $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                $updateNode->save();
+                            } else {
+                                $updateNode = Node::findOrFail($n->id);
+                                $updateNode->tingkatKemacetan = 0;
+                                $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                $updateNode->save();
+                            }
+                        }
+                    }
+                }
+                $prevNode = $n;
+            }
+
+            return response()->json(['message' => 'Node updated successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     function haversine($lat1, $lon1, $lat2, $lon2)
     {
         $radius = 6371;

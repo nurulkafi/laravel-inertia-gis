@@ -294,7 +294,7 @@ function MapboxMap({
                         const id = `line${index + 2}`;
                         const coordinates = createLineCoordinates(data, color);
                         addLineToMap(map, id, coordinates, color);
-                    }); 
+                    });
                 }
                 addLineToMap(map, "line1", lineCoordinates, "green");
 
@@ -339,6 +339,43 @@ function MapboxMap({
                 }
             });
             // console.log("data", icon);
+        } else{
+            map.on("click", function (e) {
+                if (marker) {
+                    marker.remove();
+                }
+                // console.log("map", e);
+                marker = new mapboxgl.Marker({
+                    color: "#7d000c",
+                })
+                    .setLngLat(e.lngLat)
+                    .addTo(map);
+
+                const lat = e.lngLat.lat;
+                const lng = e.lngLat.lng;
+                setIsLoading(true);
+                axios
+                    .get(
+                        `http://localhost:8000/api/location_info?lat=${lat}&lng=${lng}`
+                    )
+
+                    .then((response) => {
+                        // Dapatkan data dari respons API jika perlu
+                        // setDataCityName(null)
+                        const addressData =
+                            response?.data?.results?.[0]?.address_line2;
+                        // setData(addressData);
+                        setIsLoading(false);
+                        setDataCityName(addressData);
+                        setDataLat(e.lngLat.lat);
+                        setDataLng(e.lngLat.lng);
+                    })
+                    .catch((error) => {
+                        setData(error);
+                        console.error("Error fetching address data", error);
+                    });
+                // console.log("Address data", data);
+            });
         }
     }, [api_token, dataTitikMulai, dataTitikTujuan, dataAlgoritma, dataNode]); // Pastikan untuk menambahkan api_token sebagai dependensi
 

@@ -30,14 +30,25 @@ class NodeController extends Controller
     {
         // dd($request->all());
         try {
-            $save = Node::create([
-                'name' => $request->name,
-                'type' => "Jalan",
-                'lat' => $request->lat,
-                'lng' => $request->lng,
-                'picture' => 'picture',
-                'description' => 'description'
-            ]);
+            if ($request->has('address')) {
+                $save = Node::create([
+                    'name' => $request->address,
+                    'type' => "Tujuan",
+                    'lat' => $request->lat,
+                    'lng' => $request->lng,
+                    'picture' => 'picture',
+                    'description' => $request->nameOfPelapor." - ".$request->tujuan,
+                ]);
+            }else{
+                $save = Node::create([
+                    'name' => $request->name,
+                    'type' => "Jalan",
+                    'lat' => $request->lat,
+                    'lng' => $request->lng,
+                    'picture' => 'picture',
+                    'description' => 'description'
+                ]);
+            }
             // sleep(1);
 
             // return redirect()->route('node.index')->with('message', 'Blog Created Successfully');

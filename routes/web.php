@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlgoritmaController;
 use App\Http\Controllers\Api\ConsumableApiController;
 use App\Http\Controllers\GraphController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\NodeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -49,4 +50,6 @@ Route::get('/test', [AlgoritmaController::class, 'test'])->name('algoritma.test'
 Route::get('/generate-node', [ConsumableApiController::class, 'generateNode']);
 Route::get('/test', [ConsumableApiController::class, 'Testing']);
 Route::get('/update-node', [AlgoritmaController::class, 'updateNode']);
+Route::get('/landing-page', [LandingPageController::class, 'index']);
+Route::get('/laporan', [LandingPageController::class, 'laporkan']);
 require __DIR__.'/auth.php';
