@@ -314,7 +314,7 @@ function MapboxMap({
                         .addTo(map);
 
                     const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                        `<h3>${value?.name}</h3>`
+                        `<h3>${value?.id} - ${value?.name}</h3>`
                     );
 
                     marker.setPopup(popup);
@@ -332,7 +332,7 @@ function MapboxMap({
                         .addTo(map);
 
                     const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                        `<h3>${value?.name}</h3>`
+                        `<h3>${value?.id} - ${value?.name}</h3>`
                     );
 
                     marker.setPopup(popup);

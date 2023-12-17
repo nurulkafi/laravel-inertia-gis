@@ -16,4 +16,7 @@ class LandingPageController extends Controller
             'map_token' => env("MAP_BOX_API_KEY")
         ]);
     }
+    public function pageSukses(){
+        return Inertia::render('LandingPage/PageSukses');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Node;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Graph;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+
 class NodeController extends Controller
 {
     //
@@ -33,13 +35,31 @@ class NodeController extends Controller
             if ($request->has('address')) {
                 $save = Node::create([
                     'name' => $request->address,
-                    'type' => "Tujuan",
+                    'type' => "Kejadian",
                     'lat' => $request->lat,
                     'lng' => $request->lng,
                     'picture' => 'picture',
-                    'description' => $request->nameOfPelapor." - ".$request->tujuan,
+                    'description' => $request->nameOfPelapor . " - " . $request->tujuan,
                 ]);
-            }else{
+
+                $node = Node::get();
+                foreach ($node as $value) {
+                    $haversine = new AStarController();
+                    $haversine = $haversine->haversine($save->lat,$save->lng,$value->lat,$value->lng);
+                    if ($haversine <= 0.03 && $value->id != $save->id) {
+                        Graph::create([
+                            'start' => $value->id,
+                            'end' => $save->id,
+                            'distance' => $haversine
+                        ]);
+                        break;
+                    }
+                }
+                return Redirect::route('pageSukses')->with([
+                    'type' => 'success',
+                    'message' => 'Laporan berhasil dibuat',
+                ]);
+            } else {
                 $save = Node::create([
                     'name' => $request->name,
                     'type' => "Jalan",
@@ -48,15 +68,16 @@ class NodeController extends Controller
                     'picture' => 'picture',
                     'description' => 'description'
                 ]);
+                return back()->with([
+                    'type' => 'success',
+                    'message' => 'Node Berhasil Ditambahkan!',
+                ]);
             }
             // sleep(1);
 
             // return redirect()->route('node.index')->with('message', 'Blog Created Successfully');
             // return Redirect::route('node.index')->with('message', 'Data Berhasil Disimpan!');
-            return back()->with([
-                'type' => 'success',
-                'message' => 'Node Berhasil Ditambahkan!',
-            ]);
+
         } catch (\Throwable $th) {
             //throw $th;
             return back()->with([

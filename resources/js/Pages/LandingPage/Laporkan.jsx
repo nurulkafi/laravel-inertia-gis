@@ -26,36 +26,34 @@ export default function Index(props) {
     });
 
 
-    // useEffect(() => {
-    //     setData((data) => ({ ...data, name: nameOfPelapor }));
-    //     setData((data) => ({ ...data, address: dataCityName }));
-    //     setData((data) => ({ ...data, lat: dataLat }));
-    //     setData((data) => ({ ...data, lng: dataLng }));
-    //     setData((data) => ({ ...data, tujuan: selectedOption }));
-    // }, [dataLat, dataLng]);
     useEffect(() => {
-        setData((data) => ({
-            ...data,
-            name: nameOfPelapor,
-            address: dataCityName,
-            lat: dataLat,
-            lng: dataLng,
-            tujuan: selectedOption,
-        }));
-    }, [data.nameOfPelapor, dataCityName, dataLat, dataLng, selectedOption]);
+        setData((data) => ({ ...data, name: data.nameOfPelapor }));
+        setData((data) => ({ ...data, address: dataCityName }));
+        setData((data) => ({ ...data, lat: dataLat }));
+        setData((data) => ({ ...data, lng: dataLng }));
+        setData((data) => ({ ...data, tujuan: selectedOption }));
+    }, [dataLat, dataLng,data.nameOfPelapor,selectedOption]);
+    // useEffect(() => {
+    //     setData((data) => ({
+    //         ...data,
+    //         name: nameOfPelapor,
+    //         address: dataCityName,
+    //         lat: dataLat,
+    //         lng: dataLng,
+    //         tujuan: selectedOption,
+    //     }));
+    // }, [data.nameOfPelapor, dataCityName, dataLat, dataLng, selectedOption]);
 
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("node.create")).then(() => {
-            // Reset the form after successful submission
-            reset();
-            setDataLat("");
-            setDataLng("");
-            setDataCityName("");
-            setSelectedOption(null);
-            setIsLoading(false);
-        });
+        post(route("node.create"));
+        setOpenModal(false);
+        data.name = "";
+        data.lat = "";
+        data.lng = "";
+        data.nameOfPelapor = "";
+        setSelectedOption(null)
     };
 
     const optionsJenisLaporan = [
@@ -139,7 +137,9 @@ export default function Index(props) {
                                         <Label label={"Jenis Laporan"} />
                                         <Select
                                             defaultValue={selectedOption}
-                                            onChange={setSelectedOption}
+                                            onChange={(e)=>{
+                                                setSelectedOption(e.value);
+                                            }}
                                             options={optionsJenisLaporan}
                                             isSearchable={false}
                                         />

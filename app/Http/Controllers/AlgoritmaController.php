@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Graph;
 use App\Models\Node;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ class AlgoritmaController extends Controller
         return Inertia::render('Algoritma/Astar/Index', [
             'map_token' => env("MAP_BOX_API_KEY"),
             'node' => Node::get(),
+            'lastUpdate' => Node::whereNotNull('lastUpdate')->orderByDesc('lastUpdate')->first()
         ]);
     }
     public function getDataAlgoritmaDjikstraJson($titikMulai, $titikTujuan)
@@ -136,7 +138,9 @@ class AlgoritmaController extends Controller
                     $neighbor = Graph::join('nodes as startNode', 'start', '=', 'startNode.id')
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
-                        ->where('end', $next_node)->first();
+                        ->where('end', $next_node)
+                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', )
+                        ->first();
 
                     if ($neighbor) {
                         $pathData[] = $neighbor;
@@ -157,7 +161,9 @@ class AlgoritmaController extends Controller
                 $neighbor = Graph::join('nodes as startNode', 'start', '=', 'startNode.id')
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
-                    ->where('end', $next_node)->first();
+                    ->where('end', $next_node)
+                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', )
+                    ->first();
 
                 if ($neighbor) {
                     $result_shortpath[] = $neighbor;
@@ -380,7 +386,11 @@ class AlgoritmaController extends Controller
 
             foreach ($neighbors as $neighbor) {
                 $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-                $distance = $neighbor->bobot;
+                $tingkatKemacetanStart = Node::findOrFail($neighbor->start)->tingkatKemacetan;
+                $tingkatKemacetanEnd = Node::findOrFail($neighbor->end)->tingkatKemacetan;
+                $tipeJalanStart = Node::findOrFail($neighbor->start)->tipeJalan;
+                $tipeJalanEnd = Node::findOrFail($neighbor->end)->tipeJalan;
+                $distance = $neighbor->distance + $tingkatKemacetanStart + $tingkatKemacetanEnd + $tipeJalanStart + $tipeJalanEnd;
 
                 // Pastikan bahwa neighborId bukan sama dengan id node saat ini
                 if ($neighborId != $node->id) {
@@ -558,7 +568,8 @@ class AlgoritmaController extends Controller
                 if ($prevNode) {
                     $distance = $this->haversine($n->lat, $n->lng, $prevNode->lat, $prevNode->lng);
 
-                    if ($distance <= 0.1 && $prevNode->tingkatKemacetan != 0) {
+                    // if ($distance <= 0.1 && $prevNode->tingkatKemacetan != 0) {
+                    if ($distance <= 0.05) {
                         $updateNode = Node::findOrFail($n->id);
                         $updateNode->tingkatKemacetan = $prevNode->tingkatKemacetan;
                         $updateNode->lastUpdate = $prevNode->lastUpdate;
@@ -594,12 +605,12 @@ class AlgoritmaController extends Controller
                                     $jamFactors = $result['currentFlow']['jamFactor'];
                                     $updateNode = Node::findOrFail($n->id);
                                     $updateNode->tingkatKemacetan = $jamFactors;
-                                    $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                    $updateNode->lastUpdate = $this->convertTimeToIndonesia($response['sourceUpdated']) ?? NULL; // default value jika 'sourceUpdated' tidak ada
                                     $updateNode->save();
                                 } else {
                                     $updateNode = Node::findOrFail($n->id);
                                     $updateNode->tingkatKemacetan = 0;
-                                    $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                    $updateNode->lastUpdate = $this->convertTimeToIndonesia($response['sourceUpdated']) ?? NULL; // default value jika 'sourceUpdated' tidak ada
                                     $updateNode->save();
                                 }
                             }
@@ -636,12 +647,12 @@ class AlgoritmaController extends Controller
                                 $jamFactors = $result['currentFlow']['jamFactor'];
                                 $updateNode = Node::findOrFail($n->id);
                                 $updateNode->tingkatKemacetan = $jamFactors;
-                                $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                $updateNode->lastUpdate = $this->convertTimeToIndonesia($response['sourceUpdated']) ?? NULL; // default value jika 'sourceUpdated' tidak ada
                                 $updateNode->save();
                             } else {
                                 $updateNode = Node::findOrFail($n->id);
                                 $updateNode->tingkatKemacetan = 0;
-                                $updateNode->lastUpdate = $response['sourceUpdated'] ?? now(); // default value jika 'sourceUpdated' tidak ada
+                                $updateNode->lastUpdate = $this->convertTimeToIndonesia($response['sourceUpdated']) ?? NULL; // default value jika 'sourceUpdated' tidak ada
                                 $updateNode->save();
                             }
                         }
@@ -668,5 +679,18 @@ class AlgoritmaController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         $distance = $radius * $c;
         return $distance;
+    }
+    public function convertTimeToIndonesia($utc_time)
+    {
+        // Buat objek Carbon dari waktu UTC
+        $carbon_utc = Carbon::parse($utc_time);
+
+        // Setel zona waktu ke Asia/Jakarta (Waktu Indonesia Barat)
+        $carbon_utc->setTimezone('Asia/Jakarta');
+
+        // Dapatkan waktu dalam format Indonesia
+        $indonesia_time = $carbon_utc->toDateTimeString();
+
+        return $indonesia_time;
     }
 }

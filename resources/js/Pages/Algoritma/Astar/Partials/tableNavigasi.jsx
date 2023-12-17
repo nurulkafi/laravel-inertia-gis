@@ -1,4 +1,5 @@
 import Pagination from "@/Components/Pagination";
+import { parse } from "postcss";
 export default function TableNavigasi({
     fastRoute,
     alternatifRoute,
@@ -47,10 +48,18 @@ export default function TableNavigasi({
                                                 {item?.nameEnd}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                 {parseFloat(item.distance).toFixed(2)} km
+                                                {parseFloat(
+                                                    item.distance
+                                                ).toFixed(2)}{" "}
+                                                km
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {item?.tingkatKemacetan}
+                                                {parseFloat(
+                                                    item?.tingkatKemacetanStart
+                                                ) +
+                                                    parseFloat(
+                                                        item?.tingkatKemacetanEnd
+                                                    )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {item?.bobot}
@@ -127,10 +136,18 @@ export default function TableNavigasi({
                                                     {item2.nameEnd}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {parseFloat(item2.distance).toFixed(2)} km
+                                                    {parseFloat(
+                                                        item2.distance
+                                                    ).toFixed(2)}{" "}
+                                                    km
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {item2?.tingkatKemacetan}
+                                                    {parseFloat(
+                                                        item2?.tingkatKemacetanStart
+                                                    ) +
+                                                        parseFloat(
+                                                            item2?.tingkatKemacetanEnd
+                                                        )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     {item2?.bobot}

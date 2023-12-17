@@ -104,7 +104,9 @@ class AStarController extends Controller
         $distance = $radius * $c;
         return $distance;
     }
-
+    public function test(){
+        return $this->haversine(-6.8922252188628, 107.53177686609, -6.8919833660488, 107.53135193248);
+    }
     // IEU JALAN
     // function aStar($start, $goal, $nodes)
     // {
