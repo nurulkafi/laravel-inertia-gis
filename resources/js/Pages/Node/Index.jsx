@@ -7,37 +7,190 @@ import { Head, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import Pagination from "@/Components/Pagination";
 import TableData from "./Partials/tableData";
-
+import { Link, usePage } from "@inertiajs/react";
+import Select from "@/Components/FloatUI/Select";
+import Label from "@/Components/FloatUI/Label";
 export default function Index(props) {
     const auth = props.auth;
     const datas = props.datas;
     const [openModal, setOpenModal] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [id, setId] = useState("");
+    const [isJalan, setIsJalan] = useState(false);
+    const [tipeData, setTipeData] = useState("semua");
+
+    const [editData, setEditData] = useState(null);
     const [dataLat, setDataLat] = useState("");
     const [dataLng, setDataLng] = useState("");
     const [dataCityName, setDataCityName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOptionTipeData, setSelectedOptionTipeData] = useState(null);
+    const [name, setName] = useState(null);
+    const [lat, setLat] = useState(null);
+    const [lng, setLng] = useState(null);
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: "",
-        lat: "",
-        lng: "",
+        id: id,
+        name: name,
+        lat: lat,
+        lng: lng,
+        tipeJalan: selectedOption,
+        tipeData: selectedOptionTipeData,
     });
 
     useEffect(() => {
-        setData((data) => ({ ...data, name: dataCityName }));
-        setData((data) => ({ ...data, lat: dataLat }));
-        setData((data) => ({ ...data, lng: dataLng }));
-    }, [dataLat, dataLng]);
+        setData((data) => ({ ...data, name: dataCityName || name }));
+        setData((data) => ({ ...data, lat: dataLat || lat }));
+        setData((data) => ({ ...data, lng: dataLng || lng }));
+        setData((data) => ({ ...data, tipeJalan: selectedOption }));
+        setData((data) => ({ ...data, tipeData: selectedOptionTipeData }));
+    }, [dataLat, dataLng, selectedOption, selectedOptionTipeData]);
+    // useEffect(() => {
+    //     // setId("");
+    //     // setIsJalan(false);
+    //     // setTipeData("semua");
+    //     // setDataNode(datas);
+    //     // setEditData(null);
+    //     // setDataLat("");
+    //     // setDataLng("");
+    //     // setDataCityName("");
+    //     // setIsLoading(false);
+    //     // setSelectedOption(null);
+    //     // setSelectedOptionTipeData(null);
+    //     // setName(null);
+    //     // setLat(null);
+    //     // setLng(null);
+    //     // data.id="";
+    //     // data.name="";
+    //     // data.lng="";
+    //     // data.tipeJalan="";
+    //     // data.tipeData="";
+    // }, [openModal,deleteModal]);
+    useEffect(() => {
+        if (id !== "") {
+            axios
+                .get(`http://localhost:8000/api/node/${id}`)
+                .then((response) => {
+                    setData((data) => ({
+                        ...data,
+                        id: response?.data?.id,
+                        name: response?.data?.name, // Set default value here
+                        lat: response?.data?.lat, // Set default value here
+                        lng: response?.data?.lng, // Set default value here
+                        tipeJalan:
+                            response?.data?.tipeJalan +
+                            " - " +
+                            response?.data?.description,
+                        tipeData: response?.data?.type,
+                    }));
+                    setName(response?.data?.name);
+                    setLat(response?.data?.lat);
+                    setLng(response?.data?.lng);
+                    setDataLat(response?.data?.lat);
+                    setDataLng(response?.data?.lng);
+                    // Set selected options here
+                    setSelectedOption(
+                        response?.data?.tipeJalan +
+                            " - " +
+                            response?.data?.description
+                    );
+                    setSelectedOptionTipeData(response?.data?.type);
+                })
+                .catch((error) => {
+                    setData(error);
+                    console.error("Error fetching address data", error);
+                });
+        }
+        console.log("id", id);
+        console.log("data", editData);
+    }, [id]);
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("node.create"));
+        if (data.id !== "") {
+            post(route("node.update",id));
+        }else{
+            post(route("node.create"));
+        }
         setOpenModal(false);
-        data.name = "";
-        data.lat = "";
-        data.lng = "";
+        data.id="",
+        data.name="",
+        data.lng="",
+        data.tipeJalan="",
+        data.tipeData="",
+        setSelectedOption(null);
+        setSelectedOptionTipeData(null);
+        // console.log("e",e)
     };
-    console.log(isLoading)
+    const submitDelete = (e) => {
+        e.preventDefault();
+
+        post(route("node.delete",id));
+        setId("");
+        setDeleteModal(false);
+        // console.log("e",e)
+    };
+    function getClassName(active) {
+        if (active) {
+            return "mr-1 mb-1 px-4 py-3 text-sm leading-4 border rounded hover:bg-indigo-600 focus:border-primary focus:text-primary bg-indigo-700 text-white";
+        } else {
+            return "mr-1 mb-1 px-4 py-3 text-sm leading-4 border rounded hover:bg-indigo-700 hover:text-white focus:border-primary focus:text-primary";
+        }
+    }
+    const optionJenisJalan = [
+        {
+            value: "1 -  Jalan Arteri Primer",
+            label: "1 -  Jalan Arteri Primer",
+        },
+        {
+            value: "2 -  Jalan Arteri Sekunder",
+            label: "2 -  Jalan Arteri Sekunder",
+        },
+        {
+            value: "3 - Jalan Kolektor  Primer",
+            label: "3 - Jalan Kolektor  Primer",
+        },
+        {
+            value: "4 - Jalan Kolektor  Sekunder",
+            label: "4 - Jalan Kolektor  Sekunder",
+        },
+        {
+            value: "5 -  Jalan Lokal Primer",
+            label: "5 -  Jalan Lokal Primer",
+        },
+        {
+            value: "6 -  Jalan Lokal Sekunder",
+            label: "6 -  Jalan Lokal Sekunder",
+        },
+        {
+            value: "7 - Jalan Lingkungan  Primer",
+            label: "7 - Jalan Lingkungan  Primer",
+        },
+        {
+            value: "8 - Jalan Lingkungan  Sekunder",
+            label: "8 - Jalan Lingkungan  Sekunder",
+        },
+    ];
+    const optionJenisData = [
+        {
+            value: "Kantor",
+            label: "Kantor",
+        },
+        {
+            value: "Jalan",
+            label: "Jalan",
+        },
+    ];
+    useEffect(() => {
+        if (selectedOptionTipeData === "Jalan") {
+            setIsJalan(true);
+        } else {
+            setIsJalan(false);
+        }
+    }, [selectedOptionTipeData]);
+    useEffect(() => {
+        setTipeData(props?.page ?? "semua")
+    }, []);
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -59,13 +212,92 @@ export default function Index(props) {
                                         <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
                                             Node
                                         </h3>
-                                        <p className="text-gray-600 mt-2">
-                                            Node dalam algoritma Dijkstra adalah
-                                            salah satu elemen dalam graf yang
-                                            digunakan untuk mencari jalur
-                                            terpendek antara dua titik atau
-                                            simpul dalam graf.
+                                        <p className="text-gray-600 mt-2 text-justify">
+                                            Node dalam algoritma A* dan Dijkstra
+                                            adalah simpul atau titik pada graf
+                                            yang digunakan untuk mencari jalur
+                                            terpendek antara dua titik. Pada
+                                            algoritma A*, setiap simpul memiliki
+                                            dua nilai, yaitu nilai g(n) yang
+                                            merupakan jarak terpendek dari
+                                            simpul awal ke simpul n, dan nilai
+                                            h(n) yang merupakan estimasi jarak
+                                            terpendek dari simpul n ke simpul
+                                            tujuan. Sedangkan pada algoritma
+                                            Dijkstra, setiap simpul memiliki
+                                            nilai jarak terpendek dari simpul
+                                            awal ke simpul tersebut.
                                         </p>
+                                        <div className="m-4">
+                                            <span className="mr-4 text-lg font-semibold">
+                                                Filter Tipe Data
+                                            </span>
+                                            <div className="flex flex-wrap mt-1 items-center">
+                                                <Link
+                                                    className={getClassName(
+                                                        tipeData === "semua"
+                                                            ? true
+                                                            : false
+                                                    )}
+                                                    href={route("node.index")}
+                                                    onClick={() => {
+                                                        setTipeData("semua");
+                                                    }}
+                                                >
+                                                    Semua
+                                                </Link>
+                                                <Link
+                                                    className={getClassName(
+                                                        tipeData === "Kantor"
+                                                            ? true
+                                                            : false
+                                                    )}
+                                                    href={route(
+                                                        "node.filter",
+                                                        "Kantor"
+                                                    )}
+                                                    onClick={() => {
+                                                        setTipeData("Kantor");
+                                                    }}
+                                                >
+                                                    Kantor
+                                                </Link>
+
+                                                <Link
+                                                    className={getClassName(
+                                                        tipeData === "Kejadian"
+                                                            ? true
+                                                            : false
+                                                    )}
+                                                    href={route(
+                                                        "node.filter",
+                                                        "Kejadian"
+                                                    )}
+                                                    onClick={() => {
+                                                        setTipeData("Kejadian");
+                                                    }}
+                                                >
+                                                    Tempat Kejadian
+                                                </Link>
+
+                                                <Link
+                                                    className={getClassName(
+                                                        tipeData === "Jalan"
+                                                            ? true
+                                                            : false
+                                                    )}
+                                                    href={route(
+                                                        "node.filter",
+                                                        "Jalan"
+                                                    )}
+                                                    onClick={() => {
+                                                        setTipeData("Jalan");
+                                                    }}
+                                                >
+                                                    Jalan
+                                                </Link>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="mt-3 md:mt-0">
                                         <button
@@ -76,82 +308,22 @@ export default function Index(props) {
                                         </button>
                                     </div>
                                 </div>
-                                <TableData datas={datas} />
+                                <TableData
+                                    datas={datas}
+                                    tipeData={tipeData}
+                                    setOpenModal={setOpenModal}
+                                    setId={setId}
+                                    setDeleteModal={setDeleteModal}
+                                />
                             </div>
                         </li>
                     </ul>
                 </div>
             </section>
-            {/* <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-                <div className="items-start justify-between md:flex">
-                    <div className="max-w-lg">
-                        <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                            Team members
-                        </h3>
-                        <p className="text-gray-600 mt-2">
-                            Lorem Ipsum is simply dummy text of the printing and
-                            typesetting industry.
-                        </p>
-                    </div>
-                    <div className="mt-3 md:mt-0">
-                        <a
-                            href="javascript:void(0)"
-                            className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
-                        >
-                            Add member
-                        </a>
-                    </div>
-                </div>
-                <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
-                    <table className="w-full table-auto text-sm text-left">
-                        <thead className="bg-gray-50 text-gray-600 font-medium border-b">
-                            <tr>
-                                <th className="py-3 px-6">Username</th>
-                                <th className="py-3 px-6">Email</th>
-                                <th className="py-3 px-6">Position</th>
-                                <th className="py-3 px-6">Salary</th>
-                                <th className="py-3 px-6"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-gray-600 divide-y">
-                            {data.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.email}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.position}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.salary}
-                                    </td>
-                                    <td className="text-right px-6 whitespace-nowrap">
-                                        <a
-                                            href="javascript:void()"
-                                            className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
-                                        >
-                                            Edit
-                                        </a>
-                                        <button
-                                            href="javascript:void()"
-                                            className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div> */}
             <Modal
                 show={openModal}
                 setShow={setOpenModal}
-                jenis={"Tambah"}
+                jenis={id === "" ? "Tambah" : "Edit"}
                 title={"Node"}
             >
                 <form onSubmit={submit}>
@@ -174,22 +346,52 @@ export default function Index(props) {
                             {!isLoading && (
                                 <div>
                                     <TextInput
-                                        label={"Name"}
+                                        label={isJalan ? "Nama Jalan" : "Nama"}
                                         id="name"
                                         type="text"
                                         name="name"
-                                        value={data.name}
+                                        value={name || data?.name}
                                         onChange={(e) =>
                                             setData("name", e.target.value)
                                         }
                                         required
                                     />
+                                    {/* <Label label={"Jenis Data"} /> */}
+                                    <Select
+                                        selectedValue={
+                                            setSelectedOptionTipeData
+                                        }
+                                        defaultValue={selectedOptionTipeData}
+                                        // onChange={(e) => {
+                                        //     setSelectedOptionTipeData(e.value);
+                                        // }}
+                                        node={optionJenisData}
+                                        // isSearchable={false}
+                                        label={"Jenis Data"}
+                                    />
+
+                                    {isJalan && (
+                                        <>
+                                            <Select
+                                                selectedValue={
+                                                    setSelectedOption
+                                                }
+                                                defaultValue={selectedOption}
+                                                // onChange={(e) => {
+                                                //     setSelectedOptionTipeData(e.value);
+                                                // }}
+                                                node={optionJenisJalan}
+                                                // isSearchable={false}
+                                                label={"Jenis Jalan"}
+                                            />
+                                        </>
+                                    )}
                                     <TextInput
                                         label={"Latitude"}
                                         id="Latitude"
                                         type="text"
                                         name="Latitude"
-                                        value={data.lat}
+                                        value={lat || data?.lat}
                                         // onChange={(e) => setData("lat", dataLat)}
                                         disabled
                                     />
@@ -198,7 +400,7 @@ export default function Index(props) {
                                         id="Longtitude"
                                         type="text"
                                         name="Longdata.nametitude"
-                                        value={data.lng}
+                                        value={lng || data?.lng}
                                         // onChange={(e) => setData("lng", dataLng)}
                                         disabled
                                     />
@@ -214,6 +416,9 @@ export default function Index(props) {
                                 setIsLoading={setIsLoading}
                                 dataNode={props?.node}
                                 icon={props?.icon}
+                                Koordinat={
+                                    id !== "" ? { lat: lat, lng: lng } : null
+                                }
                             />
                         </div>
                     </div>
@@ -231,6 +436,34 @@ export default function Index(props) {
                             onClick={() => setOpenModal(false)}
                         >
                             Cancel
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+            <Modal
+                show={deleteModal}
+                setShow={setDeleteModal}
+                jenis={deleteModal}
+                title={"Hapus Node"}
+                size={"sm"}
+            >
+                <div className="text-center text-lg">
+                    Yakin Akan Menghapus Data?
+                </div>
+                <form onSubmit={submitDelete}>
+                    <div className="flex items-center gap-3 p-4 mt-5 border-t">
+                        <button
+                            className="px-6 py-2 text-white bg-indigo-600 rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
+                            // onClick={() => setOpenModal(false)}
+                            type="submit"
+                        >
+                            Ya
+                        </button>
+                        <button
+                            className="px-6 py-2 text-gray-800 border rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
+                            onClick={() => {setDeleteModal(false);setId("")}}
+                        >
+                            Tidak
                         </button>
                     </div>
                 </form>

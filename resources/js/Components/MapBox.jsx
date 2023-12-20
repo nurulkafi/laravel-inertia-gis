@@ -14,6 +14,7 @@ function MapboxMap({
     setDistance,
     dataAlgoritma = null,
     icon,
+    Koordinat=null
 }) {
     const [data, setData] = useState("");
     useEffect(() => {
@@ -22,7 +23,13 @@ function MapboxMap({
             container: "map", // container ID
             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: "mapbox://styles/mapbox/streets-v12", // style URL
-            center: dataTitikMulai !== null ? [dataTitikMulai?.lng,dataTitikMulai?.lat] : [107.53606, -6.901729], // starting position [lng, lat]
+            center:
+                Koordinat !== null
+                    ? [Koordinat?.lng, Koordinat?.lat]
+                    : dataTitikMulai !== null
+                    ? [dataTitikMulai.lng, dataTitikMulai.lat]
+                    : [107.53606, -6.901729],
+
             zoom: 17, // starting zoom
         });
         map.addControl(new mapboxgl.NavigationControl());
@@ -93,10 +100,27 @@ function MapboxMap({
 
                     marker.setPopup(popup);
             }
+
             });
+            let marker2 = null;
+            if (Koordinat) {
+                marker2 = new mapboxgl.Marker({
+                    color: "#7d000c",
+                })
+                    .setLngLat([Koordinat?.lng, Koordinat?.lat])
+                    .addTo(map);
+                let popup = new mapboxgl.Popup({
+                    offset: 25,
+                }).setHTML(`<h3>${Koordinat?.lng} - ${Koordinat?.lat}</h3>`);
+
+                marker2.setPopup(popup);
+            }
             map.on("click", function (e) {
                 if (marker) {
                     marker.remove();
+                }
+                if (marker2 !== null) {
+                    marker2.remove();
                 }
                 // console.log("map", e);
                 marker = new mapboxgl.Marker({
@@ -377,7 +401,7 @@ function MapboxMap({
                 // console.log("Address data", data);
             });
         }
-    }, [api_token, dataTitikMulai, dataTitikTujuan, dataAlgoritma, dataNode]); // Pastikan untuk menambahkan api_token sebagai dependensi
+    }, [api_token, dataTitikMulai, dataTitikTujuan, dataAlgoritma, dataNode,Koordinat]); // Pastikan untuk menambahkan api_token sebagai dependensi
 
     return (
         <>

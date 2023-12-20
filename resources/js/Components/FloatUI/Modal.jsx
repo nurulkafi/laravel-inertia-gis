@@ -1,23 +1,33 @@
 
 
-export default function Modal ({show,setShow,jenis,title,children}) {
+export default function Modal ({show,setShow,jenis,title,children,size="xl"}) {
     // const [show, setState] = useState(true);
 
     return show ? (
         <div className="fixed inset-0 z-10 overflow-y-auto ">
             <div
                 className="fixed inset-0 w-full h-full bg-black opacity-40"
-                onClick={() => setShow(false)}
+                onClick={() => {
+                    setShow(false);
+                }}
             ></div>
             <div className="flex items-center min-h-screen px-4 py-8">
-                <div className="relative w-full max-w-7xl mx-auto bg-white rounded-md shadow-lg">
+                <div
+                    className={`relative w-full ${
+                        size === "sm" ? "max-w-md" : "max-w-7xl"
+                    } mx-auto bg-white rounded-md shadow-lg`}
+                >
                     <div className="flex items-center justify-between p-4 border-b">
                         <h4 className="text-lg font-medium text-gray-800">
-                            Form {jenis} {title}
+                            {title === "Hapus Node"
+                                ? title
+                                : `Form ${jenis} ${title}`}
                         </h4>
                         <button
                             className="p-2 text-gray-400 rounded-md hover:bg-gray-100"
-                            onClick={() => setShow(false)}
+                            onClick={() => {
+                                setShow(false);
+                            }}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -36,20 +46,6 @@ export default function Modal ({show,setShow,jenis,title,children}) {
                     <div className="space-y-2 p-4 mt-3 text-[15.5px] leading-relaxed text-gray-500">
                         {children}
                     </div>
-                    {/* <div className="flex items-center gap-3 p-4 mt-5 border-t">
-                        <button
-                            className="px-6 py-2 text-white bg-indigo-600 rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
-                            onClick={() => setShow(false)}
-                        >
-                            Accept
-                        </button>
-                        <button
-                            className="px-6 py-2 text-gray-800 border rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
-                            onClick={() => setShow(false)}
-                        >
-                            Cancel
-                        </button>
-                    </div> */}
                 </div>
             </div>
         </div>

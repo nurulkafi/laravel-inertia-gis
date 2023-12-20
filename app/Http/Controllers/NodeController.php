@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Node;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Graph;
+use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,19 @@ class NodeController extends Controller
         // dd();
 
     }
+    public function filter($filter): Response
+    {
+
+        return Inertia::render('Node/Index', [
+            'datas' => Node::where('type',$filter)->latest()->paginate(10),
+            'map_token' => env("MAP_BOX_API_KEY"),
+            'node' => Node::get(),
+            'page' => $filter
+            // 'status' => session('status'),
+        ]);
+        // dd();
+
+    }
     public function create(Request $request)
     {
         // dd($request->all());
@@ -45,7 +59,7 @@ class NodeController extends Controller
                 $node = Node::get();
                 foreach ($node as $value) {
                     $haversine = new AStarController();
-                    $haversine = $haversine->haversine($save->lat,$save->lng,$value->lat,$value->lng);
+                    $haversine = $haversine->haversine($save->lat, $save->lng, $value->lat, $value->lng);
                     if ($haversine <= 0.03 && $value->id != $save->id) {
                         Graph::create([
                             'start' => $value->id,
@@ -60,13 +74,22 @@ class NodeController extends Controller
                     'message' => 'Laporan berhasil dibuat',
                 ]);
             } else {
+                $angka = NULL;
+                $deskripsi = " ";
+                if ($request->tipeJalan === "Jalan") {
+                    list($angka, $deskripsi) = explode(' - ', $request->tipeJalan, 2);
+
+                    // Hapus spasi ekstra di awal dan akhir deskripsi
+                    $deskripsi = trim($deskripsi);
+                }
                 $save = Node::create([
                     'name' => $request->name,
-                    'type' => "Jalan",
+                    'type' => $request->tipeData,
+                    'tipeJalan' => $angka,
                     'lat' => $request->lat,
                     'lng' => $request->lng,
                     'picture' => 'picture',
-                    'description' => 'description'
+                    'description' => $deskripsi
                 ]);
                 return back()->with([
                     'type' => 'success',
@@ -78,11 +101,78 @@ class NodeController extends Controller
             // return redirect()->route('node.index')->with('message', 'Blog Created Successfully');
             // return Redirect::route('node.index')->with('message', 'Data Berhasil Disimpan!');
 
-        } catch (\Throwable $th) {
+        } catch (Exception $th) {
             //throw $th;
             return back()->with([
                 'type' => 'error',
-                'message' => 'Terdapat Kesalahan Coba Lagi!',
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
+    public function dataFilter($filter)
+    {
+        $data = Node::where('type', $filter)->paginate(10);
+        return response()->json($data);
+    }
+    public function searchData($id)
+    {
+        $data = Node::findOrFail($id);
+        return response()->json($data);
+    }
+    public function update(Request $request,$id)
+    {
+        // dd($request->all());
+        try {
+
+            if ($request->tipeJalan !== "Kantor") {
+                list($angka, $deskripsi) = explode(' - ', $request->tipeJalan, 2);
+
+                // Hapus spasi ekstra di awal dan akhir deskripsi
+                $deskripsi = trim($deskripsi);
+            } else {
+                $angka = NULL;
+                $deskripsi = " ";
+            }
+            $id = Node::findOrFail($id);
+            $id->update([
+                'name' => $request->name,
+                'type' => $request->tipeData,
+                'tipeJalan' => $angka,
+                'lat' => $request->lat,
+                'lng' => $request->lng,
+                'picture' => 'picture',
+                'description' => $deskripsi
+            ]);
+            return back()->with([
+                'type' => 'success',
+                'message' => 'Node Berhasil Diubah!',
+            ]);
+
+            // sleep(1);
+
+            // return redirect()->route('node.index')->with('message', 'Blog Created Successfully');
+            // return Redirect::route('node.index')->with('message', 'Data Berhasil Disimpan!');
+
+        } catch (Exception $th) {
+            //throw $th;
+            return back()->with([
+                'type' => 'error',
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
+    public function delete(Request $request, $id){
+        try {
+            $node = Node::findOrFail($id);
+            $node->delete();
+            return back()->with([
+                'type' => 'success',
+                'message' => 'Node Berhasil Dihapus!',
+            ]);
+        } catch (\Throwable $th) {
+            return back()->with([
+                'type' => 'error',
+                'message' => $th->getMessage(),
             ]);
         }
     }

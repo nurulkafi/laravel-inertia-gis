@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlgoritmaController;
 use App\Http\Controllers\Api\ConsumableApiController;
+use App\Http\Controllers\NodeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,5 @@ Route::get('/location_info', [ConsumableApiController::class, 'getLocationInfo']
 Route::get('/djikstra/result/{titikMulai}/{titikTujuan}', [AlgoritmaController::class, 'getDataAlgoritmaDjikstraJson']);
 Route::get('/astar/result/{titikMulai}/{titikTujuan}', [AlgoritmaController::class, 'getDataAlgoritmaAstarJson']);
 Route::get('/update-node', [AlgoritmaController::class, 'updateNode']);
+Route::get('/node/filter/{filter}', [NodeController::class, 'dataFilter']);
+Route::get('/node/{id}', [NodeController::class, 'searchData']);

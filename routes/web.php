@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 Route::post('/node', [NodeController::class, 'create'])->name('node.create');
+Route::post('/node/{id}', [NodeController::class, 'update'])->name('node.update');
+Route::post('/node/delete/{id}', [NodeController::class, 'delete'])->name('node.delete');
+Route::get('/node/filter/{filter}', [NodeController::class, 'filter'])->name('node.filter');
 Route::get('/test', [AStarController::class, 'test'])->name('algoritma.test');
 Route::get('/generate-node', [ConsumableApiController::class, 'generateNode']);
 Route::get('/test', [ConsumableApiController::class, 'Testing']);
