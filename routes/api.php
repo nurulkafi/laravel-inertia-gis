@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AlgoritmaController;
 use App\Http\Controllers\Api\ConsumableApiController;
+use App\Http\Controllers\GraphController;
 use App\Http\Controllers\NodeController;
+use App\Models\Graph;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,3 +29,4 @@ Route::get('/astar/result/{titikMulai}/{titikTujuan}', [AlgoritmaController::cla
 Route::get('/update-node', [AlgoritmaController::class, 'updateNode']);
 Route::get('/node/filter/{filter}', [NodeController::class, 'dataFilter']);
 Route::get('/node/{id}', [NodeController::class, 'searchData']);
+Route::get('/graph/{id}', [GraphController::class, 'show']);

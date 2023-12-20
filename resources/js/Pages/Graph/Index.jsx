@@ -14,6 +14,7 @@ export default function Index(props) {
     const node = props.node;
     // console.log('gr',graph)
     const [openModal, setOpenModal] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
     const [titikMulai, setTitikMulai] = useState(null);
     const [titikTujuan, setTitikTujuan] = useState(null);
     const [NodeTitikMulai, setNodeTitikMulai] = useState(null);
@@ -21,7 +22,7 @@ export default function Index(props) {
     const [distance, setDistance] = useState("");
     const [dataCityName, setDataCityName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
+    const [id, setId] = useState("");
     const { data, setData, post, processing, errors, reset } = useForm({
         start: "",
         end: "",
@@ -48,12 +49,44 @@ export default function Index(props) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("graph.create"));
+        if (id !== "") {
+            post(route("graph.update", id));
+        } else {
+            post(route("graph.create"));
+        }
         setOpenModal(false);
         data.start = "";
         data.end = "";
         data.distance = "";
     };
+    const submitDelete = (e) => {
+        e.preventDefault();
+
+        post(route("graph.delete", id));
+        setId("");
+        setDeleteModal(false);
+        // console.log("e",e)
+    };
+    useEffect(() => {
+        if (id !== "") {
+            axios
+                .get(`http://localhost:8000/api/graph/${id}`)
+                .then((response) => {
+                    // setTitikMulai();
+                    setTitikMulai(
+                        `${response.data.start} - ${response.data.nameStart}`
+                    );
+                    setTitikTujuan(
+                        `${response.data.end} - ${response.data.nameEnd}`
+                    );
+
+                })
+                .catch((error) => {
+                    setData(error);
+                    console.error("Error fetching address data", error);
+                });
+        }
+    }, [id]);
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -82,29 +115,33 @@ export default function Index(props) {
                                         </p>
                                     </div>
                                     <div className="mt-3 md:mt-0">
-                                        {/* <button
+                                        <button
                                             onClick={() => setOpenModal(true)}
                                             className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
                                         >
                                             Add Graph
-                                        </button> */}
-                                        <Link
+                                        </button>
+                                        {/* <Link
                                             href="/add-graph"
                                             className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
                                         >
                                             Add Graph
-                                            {/* <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" /> */}
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </div>
-                                <TableData datas={graph} />
+                                <TableData
+                                    datas={graph}
+                                    setId={setId}
+                                    setOpenModal={setOpenModal}
+                                    setDeleteModal={setDeleteModal}
+                                />
                             </div>
                         </li>
                     </ul>
                     <Modal
                         show={openModal}
                         setShow={setOpenModal}
-                        jenis={"Tambah"}
+                        jenis={id !== "" ? "Ubah" : "Tambah"}
                         title={"Graph"}
                     >
                         <form onSubmit={submit}>
@@ -131,15 +168,17 @@ export default function Index(props) {
                                             <Select
                                                 node={node}
                                                 label={"Titik Mulai"}
-                                                value={setTitikMulai}
+                                                selectedValue={setTitikMulai}
+                                                defaultValue={titikMulai}
                                             />
                                             <Select
                                                 node={node}
                                                 label={"Tujuan"}
-                                                value={setTitikTujuan}
+                                                selectedValue={setTitikTujuan}
+                                                defaultValue={titikTujuan}
                                             />
                                             <TextInput
-                                                label={"Distance"}
+                                                label={"Jarak"}
                                                 id="Distance"
                                                 type="text"
                                                 // name="Longdata.nametitude"
@@ -179,6 +218,37 @@ export default function Index(props) {
                                     onClick={() => setOpenModal(false)}
                                 >
                                     Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </Modal>
+                    <Modal
+                        show={deleteModal}
+                        setShow={setDeleteModal}
+                        jenis={deleteModal}
+                        title={"Hapus Graph"}
+                        size={"sm"}
+                    >
+                        <div className="text-center text-lg">
+                            Yakin Akan Menghapus Data?
+                        </div>
+                        <form onSubmit={submitDelete}>
+                            <div className="flex items-center gap-3 p-4 mt-5 border-t">
+                                <button
+                                    className="px-6 py-2 text-white bg-indigo-600 rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
+                                    // onClick={() => setOpenModal(false)}
+                                    type="submit"
+                                >
+                                    Ya
+                                </button>
+                                <button
+                                    className="px-6 py-2 text-gray-800 border rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
+                                    onClick={() => {
+                                        setDeleteModal(false);
+                                        setId("");
+                                    }}
+                                >
+                                    Tidak
                                 </button>
                             </div>
                         </form>

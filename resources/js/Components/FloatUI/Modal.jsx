@@ -19,7 +19,7 @@ export default function Modal ({show,setShow,jenis,title,children,size="xl"}) {
                 >
                     <div className="flex items-center justify-between p-4 border-b">
                         <h4 className="text-lg font-medium text-gray-800">
-                            {title === "Hapus Node"
+                            {title === "Hapus Node" || "Hapus Graph"
                                 ? title
                                 : `Form ${jenis} ${title}`}
                         </h4>

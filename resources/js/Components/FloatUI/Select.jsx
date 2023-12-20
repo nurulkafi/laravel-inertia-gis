@@ -21,7 +21,7 @@ export default function Select({ node, label, selectedValue, defaultValue }) {
                     (value, key) =>
                         value !== defaultValue && (
                             <option key={key} value={value.id ?? value?.value}>
-                                {value.name ?? value?.label}
+                                {`${value?.id} - ${value?.name}` ?? value?.label}
                             </option>
                         )
                 )}

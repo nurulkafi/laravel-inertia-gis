@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/graph', [GraphController::class, 'index'])->name('graph.index');
     Route::get('/add-graph', [GraphController::class, 'add'])->name('graph.add');
     Route::post('/graph', [GraphController::class, 'create'])->name('graph.create');
+    Route::post('/graph/delete/{id}', [GraphController::class, 'delete'])->name('graph.delete');
+    Route::post('/graph/{id}', [GraphController::class, 'update'])->name('graph.update');
     Route::get('/algoritma/djikstra', [AlgoritmaController::class, 'index'])->name('algoritma.index');
     Route::get('/algoritma/astar', [AlgoritmaController::class, 'indexAstar']);
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
