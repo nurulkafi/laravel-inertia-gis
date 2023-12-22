@@ -25,6 +25,7 @@ export default function Index(props) {
     const [dataAlgoritma, setDataAlgoritma] = useState(false);
     const [titikMulai, setTitikMulai] = useState(null);
     const [titikTujuan, setTitikTujuan] = useState(null);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     useEffect(() => {
         if (titikMulai !== null && titikTujuan !== null) {
             axios
@@ -44,6 +45,25 @@ export default function Index(props) {
     }, [titikMulai, titikTujuan]);
     const Kantor = node?.filter((val) => val.type === "Kantor");
     const Kejadian = node?.filter((val) => val.type === "Kejadian");
+    const updateLaluLintas = () => {
+        // Menetapkan tombol menjadi nonaktif saat permintaan API dimulai
+        setIsButtonDisabled(true);
+
+        axios
+            .get(`http://localhost:8000/api/update-node`)
+            .then((response) => {
+                // Lakukan sesuatu dengan respons API jika perlu
+                window.location.reload();
+            })
+            .catch((error) => {
+                setData(error);
+                console.error("Error fetching address data", error);
+            })
+            .finally(() => {
+                // Menetapkan tombol kembali aktif setelah respons API selesai (berhasil atau gagal)
+                setIsButtonDisabled(false);
+            });
+    };
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -63,15 +83,31 @@ export default function Index(props) {
                                 <div className="items-start justify-between md:flex">
                                     <div className="max-w-lg">
                                         <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-                                            Finding Routes Using Algorithms
-                                            Dijkstra
+                                            Pencarian Rute dengan Algoritma
+                                            Djikstra
                                         </h3>
-                                        <p className="text-gray-600 mt-2">
+                                        {/* <p className="text-gray-600 mt-2">
                                             Algoritma Dijkstra adalah algoritma
                                             yang digunakan untuk menemukan jalur
                                             terpendek dalam grafik berbobot,
                                             dengan langkah utama: inisialisasi,
                                             perulangan, dan hasil.
+                                        </p> */}
+                                        <p className="mt-2 text-gray-600">
+                                            Update Terakhir Kondisi Lalu Lintas:{" "}
+                                            {props?.lastUpdate?.lastUpdate}
+                                            <button
+                                                type="button"
+                                                className={`inline-block px-4 py-2 text-white duration-150 font-medium rounded-lg md:text-sm ${
+                                                    isButtonDisabled
+                                                        ? "bg-gray-400 cursor-not-allowed"
+                                                        : "bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700"
+                                                }`}
+                                                onClick={updateLaluLintas}
+                                                disabled={isButtonDisabled}
+                                            >
+                                                Perbarui Kondisi Lalu Lintas
+                                            </button>
                                         </p>
                                     </div>
                                     <div className="mt-3 md:mt-0">
@@ -113,7 +149,11 @@ export default function Index(props) {
                                             return {
                                                 value: item.id,
                                                 label:
-                                                    item.id + " - " + item.name,
+                                                    item.id +
+                                                    " - " +
+                                                    item.name +
+                                                    " - " +
+                                                    item.description,
                                             };
                                         })}
                                         isSearchable={true}

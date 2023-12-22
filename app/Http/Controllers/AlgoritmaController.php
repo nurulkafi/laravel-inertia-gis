@@ -18,6 +18,7 @@ class AlgoritmaController extends Controller
         return Inertia::render('Algoritma/Djikstra/Index', [
             'map_token' => env("MAP_BOX_API_KEY"),
             'node' => Node::get(),
+            'lastUpdate' => Node::whereNotNull('lastUpdate')->orderByDesc('lastUpdate')->first()
         ]);
     }
     public function indexAstar()
@@ -47,7 +48,8 @@ class AlgoritmaController extends Controller
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
                         ->where('end', $next_node)
-                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
+                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', 'startNode.tipeJalan as tipeJalanStart','endNode.tipeJalan as tipeJalanEnd')
+                        // ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
                         ->first();
 
                     if ($neighbor) {
@@ -70,7 +72,8 @@ class AlgoritmaController extends Controller
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
                     ->where('end', $next_node)
-                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
+                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', 'startNode.tipeJalan as tipeJalanStart','endNode.tipeJalan as tipeJalanEnd')
+                    // ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd', 'distance', 'tingkatKemacetan', 'bobot')
 
                     ->first();
 
@@ -139,7 +142,7 @@ class AlgoritmaController extends Controller
                         ->join('nodes as endNode', 'end', '=', 'endNode.id')
                         ->where('start', $current_node)
                         ->where('end', $next_node)
-                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', )
+                        ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', 'startNode.tipeJalan as tipeJalanStart','endNode.tipeJalan as tipeJalanEnd')
                         ->first();
 
                     if ($neighbor) {
@@ -162,7 +165,7 @@ class AlgoritmaController extends Controller
                     ->join('nodes as endNode', 'end', '=', 'endNode.id')
                     ->where('start', $current_node)
                     ->where('end', $next_node)
-                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', )
+                    ->select('start', 'end', 'startNode.name as nameStart', 'startNode.lat as latStart', 'startNode.lng as lngStart', 'endNode.name as nameEnd', 'endNode.lat as latEnd', 'endNode.lng as lngEnd','endNode.tingkatKemacetan as tingkatKemacetanEnd','startNode.tingkatKemacetan as tingkatKemacetanStart', 'distance', 'startNode.tipeJalan as tipeJalanStart','endNode.tipeJalan as tipeJalanEnd')
                     ->first();
 
                 if ($neighbor) {
@@ -174,87 +177,14 @@ class AlgoritmaController extends Controller
         }
 
         $data = [
-            'shortpath' => $shortpath,
-            'allPath' => $allPath,
-            'result_algoritma_shortpath' => $result_shortpath,
-            'result_all_path' => $result_all_path,
+            'shortpath' => $shortpath ?? null,
+            'allPath' => $allPath ?? null,
+            'result_algoritma_shortpath' => $result_shortpath ?? null,
+            'result_all_path' => $result_all_path ?? null,
             'astar_execution_time' => $shortpath['execution_time'] ?? 0
         ];
         return response()->json($data, 200);
     }
-    // public function findShortestPath($start, $end)
-    // {
-    //     // Load the entire graph into memory (assuming it's not too large)
-    //     $nodes = Node::get();
-    //     $graph = [];
-
-    //     foreach ($nodes as $node) {
-    //         // $neighbors = Graph::where('start', $node->id)->orWhere('end', $node->id)->get();
-    //         $neighbors = Graph::where('start', $node->id)->get();
-
-    //         $graph[$node->id] = [];
-
-    //         foreach ($neighbors as $neighbor) {
-    //             $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-    //             $distance = $neighbor->distance;
-
-    //             // Ensure that neighborId is not the same as the current node's id
-    //             if ($neighborId != $node->id) {
-    //                 $graph[$node->id][$neighborId] = $distance;
-    //             }
-    //         }
-    //     }
-
-    //     $distances = [];
-    //     $previous = [];
-    //     $unvisited = $graph;
-    //     $start_time = microtime(true);
-    //     foreach ($unvisited as $node => $value) {
-    //         $distances[$node] = INF;
-    //     }
-
-    //     $distances[$start] = 0;
-
-    //     while (count($unvisited)) {
-    //         $minNode = null;
-    //         foreach ($unvisited as $node => $value) {
-    //             if ($minNode === null || $distances[$node] < $distances[$minNode]) {
-    //                 $minNode = $node;
-    //             }
-    //         }
-
-    //         if ($minNode === $end) {
-    //             break;
-    //         }
-
-    //         foreach ($graph[$minNode] as $neighbor => $value) {
-    //             $alt = $distances[$minNode] + $value;
-    //             if ($alt < $distances[$neighbor]) {
-    //                 $distances[$neighbor] = $alt;
-    //                 $previous[$neighbor] = $minNode;
-    //             }
-    //         }
-
-    //         unset($unvisited[$minNode]);
-    //     }
-
-    //     $path = [];
-    //     $node = $end;
-    //     while (isset($previous[$node])) {
-    //         $path[] = $node;
-    //         $node = $previous[$node];
-    //     }
-    //     $end_time = microtime(true);
-    //     $path[] = $start;
-    //     $execution_time = ($end_time - $start_time);
-    //     // Check if a path is found, otherwise, return an error message or handle accordingly.
-    //     if (count($path) <= 1) {
-    //         return "No path found.";
-    //     }
-
-    //     // return array_reverse($path);
-    //     return ["path" => array_reverse($path), "execution_time" => $execution_time];
-    // }
     public function findShortestPath($start, $end)
     {
         // Memuat seluruh graf ke dalam memori (diasumsikan tidak terlalu besar)
@@ -269,7 +199,11 @@ class AlgoritmaController extends Controller
             foreach ($neighbors as $neighbor) {
                 // Menentukan tetangga dan jarak ke tetangga
                 $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-                $distance = $neighbor->bobot;
+                $tingkatKemacetanStart = Node::findOrFail($neighbor->start)->tingkatKemacetan;
+                $tingkatKemacetanEnd = Node::findOrFail($neighbor->end)->tingkatKemacetan;
+                $tipeJalanStart = Node::findOrFail($neighbor->start)->tipeJalan;
+                $tipeJalanEnd = Node::findOrFail($neighbor->end)->tipeJalan;
+                $distance = $neighbor->distance + $tingkatKemacetanStart + $tingkatKemacetanEnd + $tipeJalanStart + $tipeJalanEnd;
 
                 // Pastikan bahwa neighborId tidak sama dengan id node saat ini
                 if ($neighborId != $node->id) {
@@ -354,7 +288,13 @@ class AlgoritmaController extends Controller
 
             foreach ($neighbors as $neighbor) {
                 $neighborId = ($neighbor->start == $node->id) ? $neighbor->end : $neighbor->start;
-                $distance = $neighbor->bobot;
+                $tingkatKemacetanStart = Node::findOrFail($neighbor->start)->tingkatKemacetan;
+                $tingkatKemacetanEnd = Node::findOrFail($neighbor->end)->tingkatKemacetan;
+                $tipeJalanStart = Node::findOrFail($neighbor->start)->tipeJalan;
+                $tipeJalanEnd = Node::findOrFail($neighbor->end)->tipeJalan;
+                $distance = $neighbor->distance + $tingkatKemacetanStart + $tingkatKemacetanEnd + $tipeJalanStart + $tipeJalanEnd;
+
+
 
                 // Pastikan bahwa neighborId bukan sama dengan id node saat ini
                 if ($neighborId != $node->id) {

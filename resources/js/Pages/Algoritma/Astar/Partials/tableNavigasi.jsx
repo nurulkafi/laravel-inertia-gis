@@ -1,8 +1,8 @@
 import Pagination from "@/Components/Pagination";
 import { parse } from "postcss";
 export default function TableNavigasi({
-    fastRoute,
-    alternatifRoute,
+    fastRoute = null,
+    alternatifRoute = null,
     execution_time,
 }) {
     // Inisialisasi totalDistanceFast dan totalDistanceAlternatif ke 0
@@ -11,7 +11,7 @@ export default function TableNavigasi({
 
     return (
         <>
-            {fastRoute && (
+            {fastRoute !== null ? (
                 <div>
                     <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
                         Rute Tercepat
@@ -24,13 +24,19 @@ export default function TableNavigasi({
                                     <th className="py-3 px-6">Start</th>
                                     <th className="py-3 px-6">End</th>
                                     <th className="py-3 px-6">Jarak</th>
-                                    <th className="py-3 px-6">Tingkat Kemacetan</th>
-                                    <th className="py-3 px-6">Bobot</th>
-
+                                    <th className="py-3 px-6">
+                                        Tingkat Kemacetan
+                                    </th>
+                                    <th className="py-3 px-6">
+                                        Bobot Jenis Jalan
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-600 divide-y">
                                 {fastRoute.map((item, idx) => {
+                                    // Initialize totalDistanceFast before using it
+                                    let totalDistanceFast = 0;
+
                                     // Tambahkan jarak ke totalDistanceFast
                                     totalDistanceFast += parseFloat(
                                         item?.distance
@@ -62,7 +68,12 @@ export default function TableNavigasi({
                                                     )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {item?.bobot}
+                                                {parseFloat(
+                                                    item?.tipeJalanStart
+                                                ) +
+                                                    parseFloat(
+                                                        item?.tipeJalanEnd
+                                                    )}
                                             </td>
                                         </tr>
                                     );
@@ -93,6 +104,10 @@ export default function TableNavigasi({
                         </table>
                     </div>
                 </div>
+            ) : (
+                <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
+                    Rute Tidak Ditemukan!
+                </h3>
             )}
 
             {alternatifRoute?.map((item, idx) => {
@@ -112,9 +127,12 @@ export default function TableNavigasi({
                                         <th className="py-3 px-6">Start</th>
                                         <th className="py-3 px-6">End</th>
                                         <th className="py-3 px-6">Jarak</th>
-                                        <th className="py-3 px-6">Tingkat Kemacetan</th>
-                                        <th className="py-3 px-6">Bobot</th>
-
+                                        <th className="py-3 px-6">
+                                            Tingkat Kemacetan
+                                        </th>
+                                        <th className="py-3 px-6">
+                                            Bobot Jenis Jalan
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-600 divide-y">
@@ -150,7 +168,12 @@ export default function TableNavigasi({
                                                         )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {item2?.bobot}
+                                                    {parseFloat(
+                                                        item2?.tipeJalanStart
+                                                    ) +
+                                                        parseFloat(
+                                                            item2?.tipeJalanEnd
+                                                        )}
                                                 </td>
                                             </tr>
                                         );

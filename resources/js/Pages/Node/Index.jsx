@@ -461,7 +461,10 @@ export default function Index(props) {
                         </button>
                         <button
                             className="px-6 py-2 text-gray-800 border rounded-md outline-none ring-offset-2 ring-indigo-600 focus:ring-2"
-                            onClick={() => {setDeleteModal(false);setId("")}}
+                            onClick={() => {
+                                setDeleteModal(false);
+                                setId("");
+                            }}
                         >
                             Tidak
                         </button>
